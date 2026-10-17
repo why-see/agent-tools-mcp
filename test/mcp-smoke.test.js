@@ -9,6 +9,7 @@ async function call(method, params) {
   const request = new Request('https://agent-tools-mcp.yvan11.workers.dev/mcp', {
     method: 'POST',
     headers: {
+      'host': 'agent-tools-mcp.yvan11.workers.dev',
       'content-type': 'application/json',
       'accept': 'application/json, text/event-stream',
       'MCP-Protocol-Version': '2025-06-18'
