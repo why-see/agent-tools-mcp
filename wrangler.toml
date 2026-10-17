@@ -1,0 +1,12 @@
+name = "agent-tools-mcp"
+main = "src/index.js"
+compatibility_date = "2026-10-17"
+workers_dev = true
+
+[[ratelimits]]
+name = "MCP_RATE_LIMITER"
+namespace_id = "2026101702"
+
+[ratelimits.simple]
+limit = 30
+period = 60
