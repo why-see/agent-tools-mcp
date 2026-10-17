@@ -20,7 +20,7 @@ async function call(method, params) {
   const body = await response.text();
   assert.equal(response.status, 200, method + ' HTTP ' + response.status + ': ' + body.slice(0, 500));
   if (response.headers.get('content-type')?.includes('text/event-stream') || body.startsWith('event:')) {
-    const messages = body.split(/\\r?\\n/).filter(line => line.startsWith('data:'))
+    const messages = body.split(String.fromCharCode(10)).filter(line => line.startsWith('data:'))
       .map(line => JSON.parse(line.slice(5).trim()));
     assert.ok(messages.length, method + ' yielded no SSE message');
     return messages.find(message => message.jsonrpc === '2.0' && 'id' in message) || messages[0];
