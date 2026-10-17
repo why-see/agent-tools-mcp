@@ -1,31 +1,37 @@
 # Agent Tools MCP
 
-Single Cloudflare Worker providing a standards-based, stateless MCP Streamable HTTP server at `/mcp`.
+**One Cloudflare Worker providing 32 MCP tools from 31 original Yvancg utility modules.**
 
-The initial release contains ten **deterministic, read-only** tools: email format, URL format, phone E.164, UUID, Gregorian ISO date, IBAN checksum, JSON syntax, ASCII slug generation, ANSI escape stripping, and whitespace normalization.
+This service implements [Streamable HTTP MCP](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/) at `/mcp` using the Cloudflare Agents SDK stateless handler and MCP SDK v2. The endpoint is not a conventional web page: opening `/mcp` using a browser GET can legitimately return `Method not allowed`.
 
-## API
+## Endpoints
 
-- `https://agent-tools-mcp.yvan11.workers.dev/mcp`: MCP 2026 and compatible stateless legacy clients.
-- `https://agent-tools-mcp.yvan11.workers.dev/health`: Service status.
+- Health: `https://agent-tools-mcp.yvan11.workers.dev/health` (GET)
+- MCP client: `https://agent-tools-mcp.yvan11.workers.dev/mcp` (POST Streamable HTTP)
+- Open source: [validators](https://github.com/Yvancg/validators) | [optimizers](https://github.com/Yvancg/optimizers) | [generators](https://github.com/Yvancg/generators)
 
-No database, remote catalog execution, AI API bills, GitHub Actions, or runner Worker.
+## Tool inventory
 
-## Deployment
+**Validators (12):** is-card-safe, is-email-safe, is-iban-safe, is-iso-date-safe, is-ip-safe, is-json-safe, is-password-safe, is-phone-e164, is-uuid-safe, is-url-safe, is-us-tin-safe, is-vat-safe.
 
-Cloudflare Workers & Pages → Create application → GitHub → `why-see/agent-tools-mcp`.
-Select production branch `main`, project name `agent-tools-mcp`, root `/`, deploy command `npx wrangler deploy`. Cloudflare builds must be verified before claiming production availability.
+**Optimizers (7 tools / 6 modules):** is-dataset-minify, is-google-tag, is-html-minify, is-minify-js, is-minify-css, is-prompt-minify, is-strip-ansi.
 
-`wrangler.toml` contains Cloudflare-native rate limiting (30 requests per minute per IP per edge location). Deployment fails closed if the binding is absent. For private deployments set `MCP_API_TOKEN` as a **Cloudflare runtime secret**, never in GitHub. The default public mode exposes only pure, cost-free utilities.
+**Generators (13):** generate-avatar, generate-card-number, generate-color, generate-dataset, generate-fake-data, generate-hash, generate-lorem, generate-password, generate-phone-number, generate-prompt, generate-slug, generate-ssn, generate-token.
 
-## Testing
+Names and implementations are derived from the upstream module files. Exact upstream versions and update policy are documented in [UPSTREAM.md](./UPSTREAM.md). The upstream catalogs are not complete or consistent enough to serve as the runtime source of truth; we use explicit audited function adapters.
 
-- `npm test` verifies utilities.
-- `npm run check:bundle` validates Wrangler bundling.
-- Use an MCP Streamable HTTP client or MCP Inspector to verify initialize, tools/list and tools/call at the deployed `/mcp` URL.
+## Tests and deployment
 
-No OAuth, payments or per-client usage metering are implemented. Do not claim this is a production multi-tenant service without adding those features.
+On GitHub, push to `main` → **Cloudflare Workers Builds** performs `npm test`, then `npx wrangler deploy` only if tests pass. **No GitHub Actions** are present.
 
-## Security
+The test suite invokes all 32 MCP tools through the actual handler, including the `initialize`, `tools/list`, and `tools/call` protocol methods.
 
-Each input is limited to 4096 characters, each MCP POST body to 8192 characters. No tools fetch arbitrary user URLs or execute remote code. Rate limit is distributed by Cloudflare location, not a global quota. HTTPS only in production. See official Cloudflare MCP handler documentation: https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/.
+The Worker has a Cloudflare native rate-limit binding (30 requests per minute per IP per data center), 8-KiB body guard and per-tool input/output bounds.
+
+Optional `MCP_API_TOKEN` must be a Cloudflare secret, not a GitHub secret or a variable in `wrangler.toml`.
+
+## Restrictions
+
+This public endpoint runs pure software utilities and **cannot** access your GitHub, Cloudflare, OpenAI or payment accounts. It is not a remotely editable filesystem. Do not send real passwords, payment details or private personal data to its validators. Generated financial identifiers and SSNs are *synthetic test fixtures only*. This service does not provide OAuth, client billing, SLA, global quotas or user identity.
+
+Current catalog size is 32 MCP tool names backed by 31 original upstream modules. An update to an upstream source repo does not automatically rebuild this MCP Worker; see the explicit update policy.
