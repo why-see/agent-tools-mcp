@@ -1,15 +1,36 @@
 # Agent Tools MCP
 
-**One Cloudflare Worker providing 32 MCP tools from 31 original Yvancg utility modules.**
+**32 free remote MCP tools for validation, optimization and synthetic test data.**
 
-This service implements [Streamable HTTP MCP](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/) at `/mcp` using the Cloudflare Agents SDK stateless handler and MCP SDK v2. The endpoint is not a conventional web page: opening `/mcp` using a browser GET can legitimately return `Method not allowed`.
+[Website](https://agent-tools-mcp.yvan11.workers.dev/) · [32-tool directory](https://agent-tools-mcp.yvan11.workers.dev/tools) · [Health](https://agent-tools-mcp.yvan11.workers.dev/health) · [Registry metadata](server.json) · [MIT License](LICENSE)
 
-## Endpoints
+## Connect an agent
 
-- Health: `https://agent-tools-mcp.yvan11.workers.dev/health` (GET)
-- MCP client: `https://agent-tools-mcp.yvan11.workers.dev/mcp` (POST Streamable HTTP)
-- Open source: [validators](https://github.com/Yvancg/validators) | [optimizers](https://github.com/Yvancg/optimizers) | [generators](https://github.com/Yvancg/generators)
+**Streamable HTTP:** `https://agent-tools-mcp.yvan11.workers.dev/mcp`
 
+**Claude Code:**
+
+```sh
+claude mcp add --transport http agent-tools https://agent-tools-mcp.yvan11.workers.dev/mcp
+```
+
+**VS Code / Copilot:** Command Palette → **MCP: Add Server** → **HTTP** → paste the endpoint URL.
+
+**Portable MCP configuration (VS Code/Copilot compatible):**
+
+```json
+{ "mcpServers": { "agent-tools": { "type": "http", "url": "https://agent-tools-mcp.yvan11.workers.dev/mcp" } } }
+```
+
+Use an MCP client rather than a browser GET request to `/mcp`, which can return `Method not allowed` by design.
+
+## Security and publishing
+
+**This is a public endpoint without authentication.** Never submit real passwords, payment-card data, tax identifiers, bank information, private documents, or API secrets. Synthetic generated IDs and seeded passwords are development fixtures only. Read [SECURITY.md](SECURITY.md).
+
+The repo is public and MIT licensed, preserving the vendored source licenses. Cloudflare Workers Builds tests and deploys on commits to `main`; no GitHub Actions. The [official registry descriptor](server.json) uses `io.github.why-see/agent-tools-mcp`; [Glama metadata](glama.json) identifies the maintainer. These files do not automatically publish a registry listing.
+
+## Tool inventory and architecture
 ## Tool inventory
 
 **Validators (12):** is-card-safe, is-email-safe, is-iban-safe, is-iso-date-safe, is-ip-safe, is-json-safe, is-password-safe, is-phone-e164, is-uuid-safe, is-url-safe, is-us-tin-safe, is-vat-safe.
@@ -35,3 +56,4 @@ Optional `MCP_API_TOKEN` must be a Cloudflare secret, not a GitHub secret or a v
 This public endpoint runs pure software utilities and **cannot** access your GitHub, Cloudflare, OpenAI or payment accounts. It is not a remotely editable filesystem. Do not send real passwords, payment details or private personal data to its validators. Generated financial identifiers and SSNs are *synthetic test fixtures only*. This service does not provide OAuth, client billing, SLA, global quotas or user identity.
 
 Current catalog size is 32 MCP tool names backed by 31 original upstream modules. An update to an upstream source repo does not automatically rebuild this MCP Worker; see the explicit update policy.
+

@@ -1,3 +1,4 @@
+import { servePublic } from './public.js';
 import { McpServer } from '@modelcontextprotocol/server';
 import { createMcpHandler } from 'agents/mcp/server';
 import { z } from 'zod';
@@ -123,6 +124,8 @@ function matchesBearer(actual, token) {
 }
 export default {
   async fetch(request, env, ctx) {
+    const docs=servePublic(request);
+    if(docs)return docs;
     const path=new URL(request.url).pathname;
     if(path==='/health'&&request.method==='GET')return Response.json({status:'ok',service:'agent-tools-mcp',tools:32,transport:'streamable-http'},{headers:{'Cache-Control':'no-store'}});
     if(path!=='/mcp')return new Response('Not found',{status:404});
