@@ -1,4 +1,5 @@
 import { servePublic } from './public.js';
+import { toolDocs } from './tool-metadata.js';
 import { McpServer } from '@modelcontextprotocol/server';
 import { createMcpHandler } from 'agents/mcp/server';
 import { z } from 'zod';
@@ -55,10 +56,20 @@ function toolResult(value) {
 function createServer() {
   const mcp = new McpServer({ name: 'agent-tools-mcp', version: '1.1.0' });
   function register(name, group, description, inputSchema, execute) {
+    const doc = toolDocs[name];
+    if (!doc) throw new Error('Missing tool documentation: ' + name);
+    // Put parameter meanings into the Zod schemas so clients see them in tools/list.
+    // Preserve required/optional status and validation behavior.
+    const documentedInputs = Object.fromEntries(
+      Object.entries(inputSchema).map(([key, schema]) => {
+        if (!doc.params[key]) throw new Error('Missing parameter documentation: ' + name + '.' + key);
+        return [key, schema.describe(doc.params[key])];
+      })
+    );
     mcp.registerTool(name, {
-      title: name,
-      description: description + ' Source: Yvancg/' + group + '.',
-      inputSchema,
+      title: doc.title,
+      description: description + ' ' + doc.usage + ' ' + doc.result,
+      inputSchema: documentedInputs,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     }, async (args) => {
       try { return toolResult(await execute(args)); }

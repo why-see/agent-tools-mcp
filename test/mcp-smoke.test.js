@@ -81,6 +81,17 @@ test('31 upstream modules: 32 individually invocable MCP tools', async () => {
   ];
   assert.equal(cases.length,32);
   const list = await call('tools/list',{});
+  // Glama TDQS: every tool has meaningful descriptions, a distinct title,
+  // and a semantic description for every exposed input parameter.
+  for (const tool of list.result.tools) {
+    assert.ok(tool.title && tool.title !== tool.name, tool.name + ': missing human-readable title');
+    assert.ok(tool.description?.includes('Use '), tool.name + ': missing usage guidance');
+    assert.ok(tool.description?.length > 90, tool.name + ': incomplete behavior description');
+    for (const [param, property] of Object.entries(tool.inputSchema?.properties || {})) {
+      assert.ok(property.description?.length > 15, tool.name + '.' + param + ': missing parameter semantics');
+    }
+  }
+
   for(const [name,args] of cases){
     assert.ok(list.result.tools.some(tool=>tool.name===name),'missing '+name);
     const answer = await call('tools/call',{name,arguments:args});
