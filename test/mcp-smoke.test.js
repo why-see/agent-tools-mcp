@@ -5,8 +5,8 @@ import worker from '../src/index.js';
 const env = { MCP_RATE_LIMITER: { limit: async () => ({ success: true }) } };
 const ctx = { waitUntil() {}, passThroughOnException() {} };
 let id = 1;
-async function call(method, params) {
-  const request = new Request('https://agent-tools-mcp.yvan11.workers.dev/mcp', {
+async function call(method, params, endpoint = '/mcp') {
+  const request = new Request('https://agent-tools-mcp.yvan11.workers.dev' + endpoint, {
     method: 'POST',
     headers: {
       'host': 'agent-tools-mcp.yvan11.workers.dev',
@@ -98,4 +98,32 @@ test('31 upstream modules: 32 individually invocable MCP tools', async () => {
     assert.equal(answer.result?.isError === true,false,name+': '+JSON.stringify(answer.result));
     assert.ok(answer.result?.content?.[0]?.text?.length>0,name+': empty response');
   }
+});
+
+test('Specialized MCP endpoints expose exactly their category without altering the combined endpoint', async () => {
+  const categories = [
+    { route:'/mcp/validators',prefix:'is-',expected:12,invoke:'is-email-safe',args:{email:'agent@example.com'},exclude:['generate-token','is-strip-ansi'] },
+    { route:'/mcp/optimizers',prefix:'is-',expected:7,invoke:'is-strip-ansi',args:{text:'plain'},exclude:['is-email-safe','generate-token'] },
+    { route:'/mcp/generators',prefix:'generate-',expected:13,invoke:'generate-slug',args:{text:'Sample Title'},exclude:['is-email-safe','is-strip-ansi'] },
+  ];
+  const seen = new Set();
+  for(const category of categories) {
+    const init = await call('initialize', {protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'specialized-test',version:'1.0'}}, category.route);
+    assert.equal(init.result.serverInfo.name,'agent-tools-'+category.route.split('/').at(-1)+'-mcp',category.route);
+    const result = await call('tools/list', {}, category.route);
+    assert.equal(result.result.tools.length,category.expected,category.route);
+    for(const tool of result.result.tools) {
+      assert.ok(tool.description?.length>90,tool.name);
+      assert.ok(!seen.has(tool.name),'duplicate across categories: '+tool.name);
+      seen.add(tool.name);
+    }
+    for(const excluded of category.exclude)assert.ok(!result.result.tools.some(tool=>tool.name===excluded),category.route+' leaked '+excluded);
+    const answer=await call('tools/call',{name:category.invoke,arguments:category.args},category.route);
+    assert.equal(answer.result?.isError===true,false,category.route);
+    assert.ok(answer.result?.content?.[0]?.text?.length>0,category.route);
+  }
+  assert.equal(seen.size,32);
+  const original=await call('tools/list',{});
+  assert.equal(original.result.tools.length,32,'combined endpoint backwards-compatible');
+  for(const tool of original.result.tools)assert.ok(seen.has(tool.name),'missing category assignment for '+tool.name);
 });

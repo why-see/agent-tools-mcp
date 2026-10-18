@@ -53,9 +53,10 @@ function toolResult(value) {
   }
   return { content: [{ type: 'text', text: output }] };
 }
-function createServer() {
-  const mcp = new McpServer({ name: 'agent-tools-mcp', version: '1.1.0' });
+function createServer(category = 'all') {
+  const mcp = new McpServer({ name: category === 'all' ? 'agent-tools-mcp' : 'agent-tools-' + category + '-mcp', version: '1.1.0' });
   function register(name, group, description, inputSchema, execute) {
+    if (category !== 'all' && category !== group) return;
     const doc = toolDocs[name];
     if (!doc) throw new Error('Missing tool documentation: ' + name);
     // Put parameter meanings into the Zod schemas so clients see them in tools/list.
@@ -126,7 +127,18 @@ function createServer() {
   g('generate-token','Generate tokens/UUIDs with WebCrypto; never use deterministic seed for real secrets.',{type:z.enum(['uuid','hex','base64','numeric']),length:optional(z.number().int().min(1).max(256)),seed},a=>generateToken(a));
   return mcp;
 }
-const handler = createMcpHandler(createServer, { route: '/mcp', legacy: 'stateless' });
+// Category-scoped public endpoints reuse the same audited tool implementations.
+// Keep the original /mcp route unchanged for existing clients and registry users.
+const endpointGroups = [
+  ['/mcp', 'all'],
+  ['/mcp/validators', 'validators'],
+  ['/mcp/optimizers', 'optimizers'],
+  ['/mcp/generators', 'generators'],
+];
+const handlers = Object.fromEntries(
+  endpointGroups.map(([route, group]) =>
+    [route, createMcpHandler(() => createServer(group), { route, legacy: 'stateless' })])
+);
 function matchesBearer(actual, token) {
   const target='Bearer '+token;
   if(actual.length!==target.length)return false;
@@ -139,7 +151,7 @@ export default {
     if(docs)return docs;
     const path=new URL(request.url).pathname;
     if(path==='/health'&&request.method==='GET')return Response.json({status:'ok',service:'agent-tools-mcp',tools:32,transport:'streamable-http'},{headers:{'Cache-Control':'no-store'}});
-    if(path!=='/mcp')return new Response('Not found',{status:404});
+    if(!Object.hasOwn(handlers,path))return new Response('Not found',{status:404});
     if(env.MCP_API_TOKEN&&!matchesBearer(request.headers.get('Authorization')||'',env.MCP_API_TOKEN))
       return new Response('Unauthorized',{status:401,headers:{'WWW-Authenticate':'Bearer'}});
     if(Number(request.headers.get('content-length')||0)>8192)return new Response('Request too large',{status:413});
@@ -150,6 +162,6 @@ export default {
     if(!env.MCP_RATE_LIMITER)return new Response('Rate limit is not configured',{status:503});
     const allowed=await env.MCP_RATE_LIMITER.limit({key:request.headers.get('CF-Connecting-IP')||'unidentified'});
     if(!allowed.success)return new Response('Too many requests',{status:429,headers:{'Retry-After':'60'}});
-    return handler(request,env,ctx);
+    return handlers[path](request,env,ctx);
   }
 };

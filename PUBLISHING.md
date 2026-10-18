@@ -66,6 +66,18 @@ Confirm the JSON response actually includes `io.github.why-see/agent-tools-mcp` 
 
 Reference: https://glama.ai/mcp/faq
 
+## Three specialized Glama connectors
+
+Use **Add MCP Server → Connector** at https://glama.ai/mcp/connectors for each distinct remote URL. These connectors share the existing verified Cloudflare origin, so use the same Glama account and do not duplicate the GitHub repo or deploy additional Workers.
+
+| Listing name | Description | Endpoint |
+| --- | --- | --- |
+| Validators MCP | 12 local input format validators for email, URLs, dates, IDs and structured data; no lookups or real credential checks. | `https://agent-tools-mcp.yvan11.workers.dev/mcp/validators` |
+| Optimizers MCP | 7 local text, HTML, CSS, JS, prompt and dataset optimization tools; review output before production. | `https://agent-tools-mcp.yvan11.workers.dev/mcp/optimizers` |
+| Generators MCP | 13 synthetic development fixture, placeholder, hash, slug and token generators; do not treat test identifiers as real credentials. | `https://agent-tools-mcp.yvan11.workers.dev/mcp/generators` |
+
+Set transport to Streamable HTTP and authentication to None. Test each listing and confirm tool counts 12, 7, and 13 respectively. Add each as a **remote connector**; the original `/mcp` URL and registry entry remain unchanged. The source repos `Yvancg/validators`, `Yvancg/optimizers` and `Yvancg/generators` are libraries, not independently hosted MCP servers; do not submit them as MCP connector endpoints.
+
 ## Future releases
 
 An existing registry version may not be overwritten freely. For a new MCP release: update code and tests; bump both the MCP server version in `src/index.js` and the version in `server.json` and `package.json`; verify Cloudflare deployment; publish the new `server.json` with publisher authentication. No recurring GitHub Actions workflows are necessary.

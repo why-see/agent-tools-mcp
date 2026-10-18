@@ -6,7 +6,17 @@
 
 ## Connect an agent
 
-**Streamable HTTP:** `https://agent-tools-mcp.yvan11.workers.dev/mcp`
+**Streamable HTTP (all 32 tools):** `https://agent-tools-mcp.yvan11.workers.dev/mcp`
+
+**Specialized connectors (same Cloudflare Worker; no extra deploys or credentials):**
+
+| Connector | Tools | URL |
+| --- | ---: | --- |
+| Validators MCP | 12 | `https://agent-tools-mcp.yvan11.workers.dev/mcp/validators` |
+| Optimizers MCP | 7 | `https://agent-tools-mcp.yvan11.workers.dev/mcp/optimizers` |
+| Generators MCP | 13 | `https://agent-tools-mcp.yvan11.workers.dev/mcp/generators` |
+
+Choose the smallest relevant connector. All endpoints share the same rate limits, privacy cautions, source and deployments.
 
 **Claude Code:**
 
@@ -50,7 +60,7 @@ Names and implementations are derived from the upstream module files. Exact upst
 
 On GitHub, push to `main` → **Cloudflare Workers Builds** performs `npm test`, then `npx wrangler deploy` only if tests pass. **No GitHub Actions** are present.
 
-The test suite invokes all 32 MCP tools through the actual handler, including the `initialize`, `tools/list`, and `tools/call` protocol methods.
+The test suite invokes all 32 MCP tools through the actual handler, including the `initialize`, `tools/list`, and `tools/call` protocol methods. It also verifies the three specialized MCP endpoints, their isolated inventories, and backward compatibility with `/mcp`.
 
 The Worker has a Cloudflare native rate-limit binding (30 requests per minute per IP per data center), 8-KiB body guard and per-tool input/output bounds.
 
