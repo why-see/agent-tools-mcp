@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.why-see/agent-tools-mcp",
   "title": "Agent Tools MCP",
-  "description": "Free remote MCP server providing 32 tools for input validation, text optimization, and synthetic data generation. Public, no API key required. Do not submit sensitive inputs.",
+  "description": "32 free MCP tools for data validation, text optimization, and synthetic test data.",
   "version": "1.1.0",
   "repository": {
     "url": "https://github.com/why-see/agent-tools-mcp",
