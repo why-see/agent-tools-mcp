@@ -1,3 +1,4 @@
+import glamaVerification from '../.well-known/glama.json' with { type: 'json' };
 // Public, indexable documentation. No cookies, scripts, analytics or external requests.
 const host='https://agent-tools-mcp.yvan11.workers.dev';
 const endpoint=host+'/mcp';
@@ -20,6 +21,7 @@ export function servePublic(request){
   let body,type;
   if(path==='/'){body=page('Agent Tools MCP | Free AI Agent Utilities','Free remote MCP tools for data validation, text optimization and synthetic test-data generation.',landing,'/');type='text/html; charset=utf-8';}
   else if(path==='/tools'){body=page('32 Tools | Agent Tools MCP','Browse 32 remote MCP validator, optimizer and generator tools.',catalog,'/tools');type='text/html; charset=utf-8';}
+  else if(path==='/.well-known/glama.json'){body=JSON.stringify(glamaVerification,null,2)+'\n';type='application/json; charset=utf-8';}
   else if(path==='/robots.txt'){body='User-agent: *\nAllow: /\nDisallow: /mcp\nSitemap: '+host+'/sitemap.xml\n';type='text/plain; charset=utf-8';}
   else if(path==='/llms.txt'){body='# Agent Tools MCP\n\nFree, public remote Streamable HTTP MCP server with 32 tools.\n\n- Home: '+host+'/\n- Catalog: '+host+'/tools\n- GitHub: https://github.com/why-see/agent-tools-mcp\n- MCP endpoint (POST): '+endpoint+'\n- No API key. Do not send sensitive information.\n';type='text/plain; charset=utf-8';}
   else if(path==='/sitemap.xml'){body='<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>'+host+'/</loc></url><url><loc>'+host+'/tools</loc></url></urlset>';type='application/xml; charset=utf-8';}

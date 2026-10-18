@@ -12,6 +12,21 @@ test('Official registry metadata matches remote server', () => {
  const glama=JSON.parse(readFileSync(new URL('../glama.json',import.meta.url),'utf8'));
  assert.deepEqual(glama.maintainers,['why-see']);
 });
+test('Glama connector ownership verification is served exactly at the well-known route',async()=>{
+ const file=readFileSync(new URL('../.well-known/glama.json',import.meta.url),'utf8');
+ const url=host+'/.well-known/glama.json';
+ const res=servePublic(new Request(url));
+ assert.equal(res.status,200);
+ assert.match(res.headers.get('Content-Type'),/^application\/json/);
+ const contents=await res.text();
+ assert.equal(contents,file);
+ const parsed=JSON.parse(contents);
+ assert.equal(parsed.$schema,'https://glama.ai/mcp/schemas/connector.json');
+ assert.match(parsed.claim,/^glama_claim_/);
+ const head=servePublic(new Request(url,{method:'HEAD'}));
+ assert.equal(head.status,200);
+ assert.equal(await head.text(),'');
+});
 test('Public docs and crawler resources',async()=>{
  for(const path of ['/','/tools','/robots.txt','/llms.txt','/sitemap.xml']){
    const res=servePublic(new Request(host+path));
