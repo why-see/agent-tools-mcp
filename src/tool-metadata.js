@@ -101,7 +101,7 @@ export const toolDocs = {
   "is-dataset-minify": {
     "title": "Minify small structured datasets",
     "usage": "Use to compact small JSON, JSONL or CSV samples without discarding meaningful fields. For ordinary JSON validity checks, use is-json-safe.",
-    "result": "Returns an optimized representation; may normalize formatting, so inspect output before production use.",
+    "result": "Transformation tool, not a boolean validator. Returns an optimized dataset representation; may normalize formatting, so inspect output before production use.",
     "params": {
       "input": "Source dataset text (maximum 4096 characters).",
       "format": "Parsing format: auto detects, or explicitly select json, jsonl or csv."
@@ -110,7 +110,7 @@ export const toolDocs = {
   "is-google-tag": {
     "title": "Optimize an existing Google tag snippet",
     "usage": "Use when transforming an already supplied Google Analytics tag snippet. It does not configure GA4 accounts, install tracking or verify consent.",
-    "result": "Returns rewritten snippet text; check consent behavior and analytics tracking before deployment.",
+    "result": "Transformation tool, not a boolean validator. Returns a rewritten Google Analytics snippet; check consent behavior and analytics tracking before deployment.",
     "params": {
       "html": "Existing HTML snippet containing the Google Analytics tag to optimize."
     }
@@ -118,7 +118,7 @@ export const toolDocs = {
   "is-html-minify": {
     "title": "Minify an HTML fragment",
     "usage": "Use to reduce whitespace in a controlled HTML fragment before delivery. For CSS or JavaScript, use is-minify-css or is-minify-js.",
-    "result": "Heuristic transformation only, not a standards-compliant HTML parser; regression-test the output.",
+    "result": "Transformation tool, not a boolean validator. Returns minified HTML text using a heuristic, not a standards-compliant HTML parser; regression-test output.",
     "params": {
       "html": "Original HTML source as text, up to 4096 characters."
     }
@@ -126,7 +126,7 @@ export const toolDocs = {
   "is-minify-js": {
     "title": "Compact JavaScript source",
     "usage": "Use for small JavaScript snippets where basic whitespace cleanup suffices. For CSS use is-minify-css; for safe production bundling use a real JavaScript parser/minifier.",
-    "result": "Heuristic, not AST-aware: output may require a behavior check before deployment.",
+    "result": "Transformation tool, not a boolean validator. Returns compacted JavaScript source text; not AST-aware, so regression-test behavior before deployment.",
     "params": {
       "code": "JavaScript source code string, limited to 4096 characters."
     }
@@ -134,7 +134,7 @@ export const toolDocs = {
   "is-minify-css": {
     "title": "Compact CSS source",
     "usage": "Use for small CSS snippets where basic whitespace cleanup suffices. For JavaScript use is-minify-js; for complex stylesheets use a CSS-aware build tool.",
-    "result": "Heuristic, not a full CSS parser: visually regression-test the output.",
+    "result": "Transformation tool, not a boolean validator. Returns compacted CSS source text; not a full CSS parser, so visually regression-test output.",
     "params": {
       "code": "CSS source code string, limited to 4096 characters."
     }
@@ -142,7 +142,7 @@ export const toolDocs = {
   "is-prompt-minify": {
     "title": "Reduce prompt verbosity and whitespace",
     "usage": "Use to shorten prompt text before passing it to a model when token budget matters. Do not assume the rewritten prompt preserves all nuances.",
-    "result": "May change phrasing and semantics; compare results on representative tasks.",
+    "result": "Transformation tool, not a boolean validator. Returns compacted prompt text that may change phrasing or meaning; compare results on representative tasks.",
     "params": {
       "text": "Prompt text to compact, up to 4096 characters."
     }
@@ -150,7 +150,7 @@ export const toolDocs = {
   "is-strip-ansi": {
     "title": "Remove terminal ANSI escape codes",
     "usage": "Use when turning colorized terminal logs into clean text for indexing or display. For structured datasets, use is-dataset-minify instead.",
-    "result": "Strips ANSI formatting locally; does not parse log entries or alter their meaning.",
+    "result": "Transformation tool, not a boolean validator. Returns text with ANSI escape formatting removed; does not parse log entries.",
     "params": {
       "text": "Terminal output string containing optional ANSI escape sequences."
     }
