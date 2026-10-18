@@ -16,10 +16,16 @@ claude mcp add --transport http agent-tools https://agent-tools-mcp.yvan11.worke
 
 **VS Code / Copilot:** Command Palette → **MCP: Add Server** → **HTTP** → paste the endpoint URL.
 
-**Portable MCP configuration (VS Code/Copilot compatible):**
+**Claude Code project `.mcp.json` configuration:**
 
 ```json
 { "mcpServers": { "agent-tools": { "type": "http", "url": "https://agent-tools-mcp.yvan11.workers.dev/mcp" } } }
+```
+
+**VS Code `.vscode/mcp.json` configuration:**
+
+```json
+{ "servers": { "agent-tools": { "type": "http", "url": "https://agent-tools-mcp.yvan11.workers.dev/mcp" } } }
 ```
 
 Use an MCP client rather than a browser GET request to `/mcp`, which can return `Method not allowed` by design.
@@ -28,9 +34,8 @@ Use an MCP client rather than a browser GET request to `/mcp`, which can return 
 
 **This is a public endpoint without authentication.** Never submit real passwords, payment-card data, tax identifiers, bank information, private documents, or API secrets. Synthetic generated IDs and seeded passwords are development fixtures only. Read [SECURITY.md](SECURITY.md).
 
-The repo is public and MIT licensed, preserving the vendored source licenses. Cloudflare Workers Builds tests and deploys on commits to `main`; no GitHub Actions. The [official registry descriptor](server.json) uses `io.github.why-see/agent-tools-mcp`; [Glama metadata](glama.json) identifies the maintainer. These files do not automatically publish a registry listing.
+The repo is public and MIT licensed, preserving the vendored source licenses. Cloudflare Workers Builds tests and deploys on commits to `main`; no GitHub Actions. The [official registry descriptor](server.json) uses `io.github.why-see/agent-tools-mcp`; [Glama metadata](glama.json) identifies the maintainer. See [PUBLISHING.md](PUBLISHING.md) for a no-local-repository submission procedure. These files do not automatically publish a registry listing.
 
-## Tool inventory and architecture
 ## Tool inventory
 
 **Validators (12):** is-card-safe, is-email-safe, is-iban-safe, is-iso-date-safe, is-ip-safe, is-json-safe, is-password-safe, is-phone-e164, is-uuid-safe, is-url-safe, is-us-tin-safe, is-vat-safe.
