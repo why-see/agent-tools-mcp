@@ -35,7 +35,7 @@ test('Public docs and crawler resources',async()=>{
    assert.ok((await res.text()).length>20,path);
  }
  const tools=await servePublic(new Request(host+'/tools')).text();
- for(const n of ['generate-slug','is-email-safe','is-minify-css']) assert.ok(tools.includes(n));
+ for(const n of ['generate-slug','is-email-safe','minify-css']) assert.ok(tools.includes(n));
  assert.equal(servePublic(new Request(host+'/health')),null);
  assert.equal(servePublic(new Request(host+'/tools',{method:'HEAD'})).status,200);
 });
