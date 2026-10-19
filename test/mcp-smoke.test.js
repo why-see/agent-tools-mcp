@@ -87,6 +87,7 @@ test('31 upstream modules: 32 individually invocable MCP tools', async () => {
     assert.ok(tool.title && tool.title !== tool.name, tool.name + ': missing human-readable title');
     assert.ok(tool.description?.includes('Use '), tool.name + ': missing usage guidance');
     assert.ok(tool.description?.length > 90, tool.name + ': incomplete behavior description');
+    assert.ok(tool.description?.length <= 260, tool.name + ': verbose description');
     for (const [param, property] of Object.entries(tool.inputSchema?.properties || {})) {
       assert.ok(property.description?.length > 15, tool.name + '.' + param + ': missing parameter semantics');
     }

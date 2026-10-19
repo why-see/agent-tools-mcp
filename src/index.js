@@ -84,47 +84,47 @@ function createServer(category = 'all') {
   const g = (name, description, schema, fn) => register(name, 'generators', description, schema, fn);
 
   // 12 validators: no third-party verification or external calls.
-  v('is-card-safe','Luhn/brand format only. Do not submit real payment card details.',{number:short},a=>validateCard(a.number));
-  v('is-email-safe','ASCII email format, without mailbox verification.',{email:short},a=>isEmailSafe(a.email));
-  v('is-iban-safe','IBAN format, country length and checksum against the bundled registry.',{iban:short},a=>isIbanSafe(a.iban));
-  v('is-iso-date-safe','Canonical Gregorian date YYYY-MM-DD.',{date:short},a=>isIsoDateSafe(a.date));
-  v('is-ip-safe','Validate IPv4 or IPv6 without lookup.',{ip:short},a=>isIpSafe(a.ip));
-  v('is-json-safe','Parse JSON using upstream safety limits.',{json:text},a=>isJsonSafe(a.json,{maxBytes:8192,maxDepth:32,maxKeys:500}));
-  v('is-password-safe','Evaluate strength; do not submit real passwords to an external MCP endpoint.',{password:short},a=>validatePassword(a.password));
-  v('is-phone-e164','International phone format with normalization.',{phone:short},a=>isPhoneE164(a.phone));
-  v('is-uuid-safe','Canonical UUID, optionally filter by version.',{uuid:short,version:optional(z.number().int().min(1).max(8))},a=>isUuidSafe(a.uuid,{version:a.version}));
-  v('is-url-safe','Conservative HTTP(S) URL syntax, no HTTP request.',{url:text},a=>isUrlSafe(a.url));
-  v('is-us-tin-safe','US EIN/SSN/ITIN format only; do not submit real identifiers.',{tin:short},a=>validateTIN(a.tin));
-  v('is-vat-safe','EU VAT country-specific format only.',{vat:short},a=>isVatSafe(a.vat));
+  v('is-card-safe','Check card number network, length and Luhn checksum.',{number:short},a=>validateCard(a.number));
+  v('is-email-safe','Check ASCII email address syntax.',{email:short},a=>isEmailSafe(a.email));
+  v('is-iban-safe','Check IBAN country length and checksum using a bundled registry.',{iban:short},a=>isIbanSafe(a.iban));
+  v('is-iso-date-safe','Check Gregorian calendar dates in YYYY-MM-DD format.',{date:short},a=>isIsoDateSafe(a.date));
+  v('is-ip-safe','Check IPv4 or IPv6 literal-address syntax.',{ip:short},a=>isIpSafe(a.ip));
+  v('is-json-safe','Parse JSON within bounded depth and key limits.',{json:text},a=>isJsonSafe(a.json,{maxBytes:8192,maxDepth:32,maxKeys:500}));
+  v('is-password-safe','Assess password strength with local heuristics.',{password:short},a=>validatePassword(a.password));
+  v('is-phone-e164','Check and normalize phone numbers to E.164 style.',{phone:short},a=>isPhoneE164(a.phone));
+  v('is-uuid-safe','Check canonical UUID syntax and optional version.',{uuid:short,version:optional(z.number().int().min(1).max(8))},a=>isUuidSafe(a.uuid,{version:a.version}));
+  v('is-url-safe','Check absolute HTTP(S) URL syntax.',{url:text},a=>isUrlSafe(a.url));
+  v('is-us-tin-safe','Check formatting of synthetic US EIN, SSN or ITIN values.',{tin:short},a=>validateTIN(a.tin));
+  v('is-vat-safe','Check country-specific European VAT number syntax.',{vat:short},a=>isVatSafe(a.vat));
 
   // Six original optimizer modules, with separate JS and CSS operations.
-  o('optimize-dataset','Clean or minify JSON/JSONL/CSV data, max 4096 input characters.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
-  o('optimize-google-tag','Rewrite existing Google Analytics tag snippet; review output before production.',{html:text},a=>optimizeGoogleTag(a.html));
-  o('minify-html','Conservative HTML minification, review results before production.',{html:text},a=>minifyHTML(a.html));
-  o('minify-js','Conservative JS minification. Not a parser. Regression-test minified code.',{code:text},a=>minifyJS(a.code));
-  o('minify-css','Conservative CSS minification, review results before production.',{code:text},a=>minifyCSS(a.code));
-  o('minify-prompt','Compress prompt whitespace and filler; semantic equivalence not guaranteed.',{text:text},a=>promptMinify(a.text));
-  o('strip-ansi','Strip ANSI escape sequences.',{text:text},a=>stripAnsi(a.text));
+  o('optimize-dataset','Compact JSON, JSONL or CSV sample data.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
+  o('optimize-google-tag','Rewrite a supplied Google Analytics tag snippet.',{html:text},a=>optimizeGoogleTag(a.html));
+  o('minify-html','Reduce whitespace in small HTML fragments.',{html:text},a=>minifyHTML(a.html));
+  o('minify-js','Reduce whitespace in JavaScript snippets.',{code:text},a=>minifyJS(a.code));
+  o('minify-css','Reduce whitespace in CSS snippets.',{code:text},a=>minifyCSS(a.code));
+  o('minify-prompt','Compress prompt whitespace and filler.',{text:text},a=>promptMinify(a.text));
+  o('strip-ansi','Strip terminal ANSI escape codes from text.',{text:text},a=>stripAnsi(a.text));
 
   // 13 generators, all local deterministic/synthetic transforms or WebCrypto.
-  g('generate-avatar','Generate SVG placeholder avatar, max 256px.',{text:optional(short),pattern:optional(z.enum(['initials','blocks','circles','random'])),size:optional(z.number().int().min(32).max(256)),seed},a=>generateAvatar(a));
-  g('generate-card-number','Generate Luhn-valid synthetic TEST card data. Never use as real payment credentials.',{brand:optional(z.enum(['visa','mastercard','amex','discover'])),seed},a=>generateCard(a));
-  g('generate-color','Generate color palette.',{base:optional(short),scheme:optional(z.enum(['complementary','triadic','tetradic','analogous','monochrome','random'])),count:optional(z.number().int().min(1).max(12)),format:optional(z.enum(['hex','rgb','hsl'])),seed},a=>generatePalette(a));
-  g('generate-dataset','Generate up to 8 rows of synthetic JSON/JSONL/CSV.',{count:tinyCount,format:optional(z.enum(['json','jsonl','csv'])),seed,schema:object},a=>generateDataset({...a,count:a.count??3}));
-  g('generate-fake-data','Generate up to 8 synthetic users, companies or addresses.',{kind:z.enum(['user','company','address','rows']),count:tinyCount,seed},a=>{
+  g('generate-avatar','Create an SVG placeholder profile icon.',{text:optional(short),pattern:optional(z.enum(['initials','blocks','circles','random'])),size:optional(z.number().int().min(32).max(256)),seed},a=>generateAvatar(a));
+  g('generate-card-number','Generate Luhn-valid synthetic card numbers.',{brand:optional(z.enum(['visa','mastercard','amex','discover'])),seed},a=>generateCard(a));
+  g('generate-color','Generate a palette from a base color and harmony scheme.',{base:optional(short),scheme:optional(z.enum(['complementary','triadic','tetradic','analogous','monochrome','random'])),count:optional(z.number().int().min(1).max(12)),format:optional(z.enum(['hex','rgb','hsl'])),seed},a=>generatePalette(a));
+  g('generate-dataset','Generate synthetic rows as JSON, JSONL or CSV.',{count:tinyCount,format:optional(z.enum(['json','jsonl','csv'])),seed,schema:object},a=>generateDataset({...a,count:a.count??3}));
+  g('generate-fake-data','Create fictional users, companies, addresses or rows.',{kind:z.enum(['user','company','address','rows']),count:tinyCount,seed},a=>{
     const R=rng(a.seed||'sample');
     if(a.kind==='rows')return fakeRows(a.count||3,a.seed||'sample');
     const f={user:fakeUser,company:fakeCompany,address:fakeAddress}[a.kind];
     return Array.from({length:a.count||1},()=>f(R));
   });
-  g('generate-hash','Compute SHA-256 or legacy MD5 hash; do not hash passwords here.',{text:text,algo:optional(z.enum(['sha-256','md5']))},a=>generateHash(a.text,a.algo||'sha-256'));
-  g('generate-lorem','Generate bounded lorem ipsum text.',{units:optional(z.enum(['words','sentences','paragraphs'])),count:tinyCount,seed},a=>generateLorem({...a,count:a.count??3}));
-  g('generate-password','Generate a random password with WebCrypto. Never use seeded outputs as secrets.',{length:optional(z.number().int().min(8).max(256)),symbols:optional(z.boolean()),seed},a=>generatePassword(a));
-  g('generate-phone-number','Generate up to 8 fictional US-format phone numbers.',{state:optional(z.enum(['CA','NY','TX','FL'])),city:optional(z.enum(['Los Angeles','San Francisco','New York','Houston','Miami'])),count:tinyCount,seed},a=>generatePhoneNumbers({...a,count:a.count??1}));
-  g('generate-prompt','Fill a prompt template with provided variables.',{type:optional(z.enum(['text','code','image'])),template:text,vars:object,seed},a=>generatePrompt(a.type||'text',a.template,a.vars||{},{seed:a.seed}));
-  g('generate-slug','Produce Unicode-aware slug from a title.',{text:text,maxLength:optional(z.number().int().min(1).max(160))},a=>generateSlug(a.text,{maxLength:a.maxLength??null}));
-  g('generate-ssn','Generate synthetic US SSN-style fixtures only, up to 8.',{count:tinyCount,formatted:optional(z.boolean()),valid:optional(z.boolean()),seed},a=>generateSSN({...a,count:a.count??1}));
-  g('generate-token','Generate tokens/UUIDs with WebCrypto; never use deterministic seed for real secrets.',{type:z.enum(['uuid','hex','base64','numeric']),length:optional(z.number().int().min(1).max(256)),seed},a=>generateToken(a));
+  g('generate-hash','Compute SHA-256 or legacy MD5 text digests.',{text:text,algo:optional(z.enum(['sha-256','md5']))},a=>generateHash(a.text,a.algo||'sha-256'));
+  g('generate-lorem','Generate lorem ipsum placeholder copy.',{units:optional(z.enum(['words','sentences','paragraphs'])),count:tinyCount,seed},a=>generateLorem({...a,count:a.count??3}));
+  g('generate-password','Generate random or seeded test passwords.',{length:optional(z.number().int().min(8).max(256)),symbols:optional(z.boolean()),seed},a=>generatePassword(a));
+  g('generate-phone-number','Generate fictional US-format phone numbers.',{state:optional(z.enum(['CA','NY','TX','FL'])),city:optional(z.enum(['Los Angeles','San Francisco','New York','Houston','Miami'])),count:tinyCount,seed},a=>generatePhoneNumbers({...a,count:a.count??1}));
+  g('generate-prompt','Fill a prompt template with supplied variables.',{type:optional(z.enum(['text','code','image'])),template:text,vars:object,seed},a=>generatePrompt(a.type||'text',a.template,a.vars||{},{seed:a.seed}));
+  g('generate-slug','Convert a title into a Unicode-aware URL slug.',{text:text,maxLength:optional(z.number().int().min(1).max(160))},a=>generateSlug(a.text,{maxLength:a.maxLength??null}));
+  g('generate-ssn','Generate fictional US SSN-style test identifiers.',{count:tinyCount,formatted:optional(z.boolean()),valid:optional(z.boolean()),seed},a=>generateSSN({...a,count:a.count??1}));
+  g('generate-token','Generate token strings or UUIDs.',{type:z.enum(['uuid','hex','base64','numeric']),length:optional(z.number().int().min(1).max(256)),seed},a=>generateToken(a));
   return mcp;
 }
 // Category-scoped public endpoints reuse the same audited tool implementations.

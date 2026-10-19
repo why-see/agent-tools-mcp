@@ -3,72 +3,72 @@
 export const toolDocs = {
   "is-card-safe": {
     "title": "Check card number structure",
-    "usage": "Use to screen synthetic card fixtures for plausible network/length and Luhn checksum. Do not use for real payment-card authorization or fraud detection.",
-    "result": "Returns a local structural assessment; never contacts a bank.",
+    "usage": "Use with synthetic card fixtures when testing payment fields.",
+    "result": "Returns structural validity, not authorization or fraud detection.",
     "params": {
       "number": "Synthetic payment-card number string to examine; do not provide real card details."
     }
   },
   "is-email-safe": {
     "title": "Validate email address syntax",
-    "usage": "Use to reject malformed email strings before a form or fixture is processed. For mailbox existence or deliverability, use a separate verification service.",
-    "result": "Returns a syntax-only result without sending email or making DNS requests.",
+    "usage": "Use to reject malformed email strings in forms and test fixtures.",
+    "result": "Does not establish mailbox existence or deliverability.",
     "params": {
       "email": "Email address string to check, such as founder@example.com; ASCII format only."
     }
   },
   "is-iban-safe": {
     "title": "Check IBAN syntax and checksum",
-    "usage": "Use to check a fabricated or public IBAN's country length and check digits. Do not use to confirm account ownership, bank existence or actual transferability.",
-    "result": "Uses a bundled country registry, with no bank or network lookup.",
+    "usage": "Use to screen fabricated or public IBANs in test data.",
+    "result": "Does not verify account ownership or transferability.",
     "params": {
       "iban": "IBAN string, optionally with spaces; do not submit real private bank account details."
     }
   },
   "is-iso-date-safe": {
     "title": "Validate an ISO calendar date",
-    "usage": "Use before accepting YYYY-MM-DD dates, including leap-day validity. For timestamps, offsets or date/time conversion, use a time-aware parser instead.",
-    "result": "Checks only the Gregorian calendar date; no timezone lookup.",
+    "usage": "Use to validate date-only fields, including leap days.",
+    "result": "Does not parse timestamps or timezone offsets.",
     "params": {
       "date": "Candidate date formatted YYYY-MM-DD, such as 2024-02-29."
     }
   },
   "is-ip-safe": {
     "title": "Validate IPv4 or IPv6 address syntax",
-    "usage": "Use to check whether a supplied string is structurally an IP address. Do not use it to geolocate a host or test network reachability.",
-    "result": "Local syntax validation only; performs no DNS or network request.",
+    "usage": "Use to screen candidate IP strings before processing.",
+    "result": "Does not test reachability or geolocation.",
     "params": {
       "ip": "IPv4 or IPv6 literal address such as 192.0.2.1 or 2001:db8::1."
     }
   },
   "is-json-safe": {
     "title": "Parse JSON under safety limits",
-    "usage": "Use to test whether text is valid JSON within depth/key constraints. For CSV/JSONL cleanup, use optimize-dataset instead.",
-    "result": "Checks JSON syntax with bounded depth and key counts; does not execute or persist input.",
+    "usage": "Use to screen JSON documents before processing; use optimize-dataset for JSONL or CSV cleanup.",
+    "result": "Checks syntax without executing the input.",
     "params": {
       "json": "JSON document as a string, up to 4096 characters; depth and key counts are limited."
     }
   },
   "is-password-safe": {
     "title": "Assess password strength heuristically",
-    "usage": "Use only with dummy passwords to evaluate upstream password rules. Never send real user credentials to a public third-party endpoint.",
-    "result": "Returns a heuristic assessment, not a breached-password check; no external lookup.",
+    "usage": "Use only with dummy passwords when testing password policies.",
+    "result": "Does not check breach databases or guarantee security.",
     "params": {
       "password": "Fictitious test password; never supply an actual password or secret."
     }
   },
   "is-phone-e164": {
     "title": "Normalize an international phone number",
-    "usage": "Use to check a candidate international number in E.164 style before storing a test record. It does not verify whether a subscriber owns the number.",
-    "result": "Performs format checking and normalization locally; sends no SMS.",
+    "usage": "Use to standardize internationally formatted test phone numbers.",
+    "result": "Does not verify subscriber ownership or send SMS.",
     "params": {
       "phone": "Candidate internationally formatted telephone number, for example +66812345678."
     }
   },
   "is-uuid-safe": {
     "title": "Validate canonical UUID syntax",
-    "usage": "Use to verify a UUID string, optionally limiting acceptance to a specific version. To create new UUIDs, use generate-token.",
-    "result": "Does not check UUID uniqueness or resolve any referenced resource.",
+    "usage": "Use to validate identifiers; use generate-token to create UUIDs.",
+    "result": "Does not check uniqueness or resource existence.",
     "params": {
       "uuid": "UUID string in canonical hyphenated format.",
       "version": "Optional UUID version number from 1 to 8; omit to accept any supported version."
@@ -76,32 +76,32 @@ export const toolDocs = {
   },
   "is-url-safe": {
     "title": "Validate HTTP or HTTPS URL syntax",
-    "usage": "Use to check a candidate web link before displaying or saving it. Do not use this to establish that a site is safe, accessible or trustworthy.",
-    "result": "Local syntax check only: never fetches, crawls or resolves the URL.",
+    "usage": "Use to screen links before storing or displaying them.",
+    "result": "Does not visit the site or assess its safety.",
     "params": {
       "url": "Absolute HTTP(S) URL string; other schemes such as javascript: are not supported."
     }
   },
   "is-us-tin-safe": {
     "title": "Check US tax ID format",
-    "usage": "Use only with synthetic EIN, SSN or ITIN fixtures to examine formatting. Do not use to confirm an individual's identity or IRS registration.",
-    "result": "Performs format-only checks with no government lookup.",
+    "usage": "Use to test taxpayer-ID input fields.",
+    "result": "Does not verify IRS issuance or anyone's identity.",
     "params": {
       "tin": "Synthetic US taxpayer identifier string; do not submit actual personal identifiers."
     }
   },
   "is-vat-safe": {
     "title": "Validate European VAT number format",
-    "usage": "Use to screen a test VAT ID for country-specific syntax. To confirm tax registration or active status, query an official VAT register separately.",
-    "result": "Local format validation only; no VIES or tax-agency call.",
+    "usage": "Use to screen VAT fixtures before form submission.",
+    "result": "Does not query VIES or confirm active registration.",
     "params": {
       "vat": "Country-prefixed VAT number string such as DE123456789."
     }
   },
   "optimize-dataset": {
     "title": "Minify small structured datasets",
-    "usage": "Use to compact small JSON, JSONL or CSV samples without discarding meaningful fields. For ordinary JSON validity checks, use is-json-safe.",
-    "result": "Returns an optimized dataset representation; may normalize formatting, so inspect output before production use.",
+    "usage": "Use to reduce formatting overhead; use is-json-safe for syntax-only checks.",
+    "result": "May normalize formatting; inspect transformed text before reuse.",
     "params": {
       "input": "Source dataset text (maximum 4096 characters).",
       "format": "Parsing format: auto detects, or explicitly select json, jsonl or csv."
@@ -109,56 +109,56 @@ export const toolDocs = {
   },
   "optimize-google-tag": {
     "title": "Optimize an existing Google tag snippet",
-    "usage": "Use when transforming an already supplied Google Analytics tag snippet. It does not configure GA4 accounts, install tracking or verify consent.",
-    "result": "Returns a rewritten Google Analytics snippet; check consent behavior and analytics tracking before deployment.",
+    "usage": "Use to optimize existing tracking markup, not configure GA4.",
+    "result": "Review consent handling and tracking behavior before deployment.",
     "params": {
       "html": "Existing HTML snippet containing the Google Analytics tag to optimize."
     }
   },
   "minify-html": {
     "title": "Minify an HTML fragment",
-    "usage": "Use to reduce whitespace in a controlled HTML fragment before delivery. For CSS or JavaScript, use minify-css or minify-js.",
-    "result": "Returns minified HTML text using a heuristic, not a standards-compliant HTML parser; regression-test output.",
+    "usage": "Use for controlled snippets rather than full document compilation.",
+    "result": "Heuristic output may require browser regression testing.",
     "params": {
       "html": "Original HTML source as text, up to 4096 characters."
     }
   },
   "minify-js": {
     "title": "Compact JavaScript source",
-    "usage": "Use for small JavaScript snippets where basic whitespace cleanup suffices. For CSS use minify-css; for safe production bundling use a real JavaScript parser/minifier.",
-    "result": "Returns compacted JavaScript source text; not AST-aware, so regression-test behavior before deployment.",
+    "usage": "Use for basic code cleanup rather than production bundling.",
+    "result": "Not AST-aware; regression-test the output.",
     "params": {
       "code": "JavaScript source code string, limited to 4096 characters."
     }
   },
   "minify-css": {
     "title": "Compact CSS source",
-    "usage": "Use for small CSS snippets where basic whitespace cleanup suffices. For JavaScript use minify-js; for complex stylesheets use a CSS-aware build tool.",
-    "result": "Returns compacted CSS source text; not a full CSS parser, so visually regression-test output.",
+    "usage": "Use for basic stylesheet cleanup rather than production minification.",
+    "result": "Not a full CSS parser; visually test the result.",
     "params": {
       "code": "CSS source code string, limited to 4096 characters."
     }
   },
   "minify-prompt": {
     "title": "Reduce prompt verbosity and whitespace",
-    "usage": "Use to shorten prompt text before passing it to a model when token budget matters. Do not assume the rewritten prompt preserves all nuances.",
-    "result": "Returns compacted prompt text that may change phrasing or meaning; compare results on representative tasks.",
+    "usage": "Use before sending text to a model when token budget matters.",
+    "result": "May alter meaning; compare results on representative prompts.",
     "params": {
       "text": "Prompt text to compact, up to 4096 characters."
     }
   },
   "strip-ansi": {
     "title": "Remove terminal ANSI escape codes",
-    "usage": "Use when turning colorized terminal logs into clean text for indexing or display. For structured datasets, use optimize-dataset instead.",
-    "result": "Returns text with ANSI escape formatting removed; does not parse log entries.",
+    "usage": "Use to make colorized logs readable for indexing or display.",
+    "result": "Returns plain text without interpreting log entries.",
     "params": {
       "text": "Terminal output string containing optional ANSI escape sequences."
     }
   },
   "generate-avatar": {
     "title": "Generate an SVG placeholder avatar",
-    "usage": "Use to create a deterministic or synthetic profile icon for prototypes. Not suitable for matching a real person's photograph.",
-    "result": "Returns SVG placeholder content; does not use image models, uploaded photos or external assets.",
+    "usage": "Use for synthetic avatars in demos and UI prototypes.",
+    "result": "Returns SVG markup, not a photorealistic likeness.",
     "params": {
       "text": "Optional initials or label used to customize the placeholder.",
       "pattern": "Avatar layout: initials, blocks, circles or random.",
@@ -168,8 +168,8 @@ export const toolDocs = {
   },
   "generate-card-number": {
     "title": "Generate a synthetic card test number",
-    "usage": "Use for payment-form UI tests that need checksum-valid dummy data. Never use to impersonate a payment credential or test real purchases.",
-    "result": "Generates synthetic format/checksum-valid fixtures only; no issued account or bank access.",
+    "usage": "Use for payment-form fixtures and UI testing.",
+    "result": "Not an issued or usable payment credential.",
     "params": {
       "brand": "Synthetic card brand: visa, mastercard, amex or discover.",
       "seed": "Optional deterministic seed for reproducible fake card fixtures."
@@ -177,8 +177,8 @@ export const toolDocs = {
   },
   "generate-color": {
     "title": "Generate an illustrative color palette",
-    "usage": "Use when a design prototype needs related colors from a base hue. Not an accessibility or WCAG contrast audit.",
-    "result": "Returns palette values in the selected format; generated colors are not automatically accessible.",
+    "usage": "Use to explore color combinations in design prototypes.",
+    "result": "Returns selected color notation; does not evaluate WCAG contrast.",
     "params": {
       "base": "Optional base color such as #3366ff.",
       "scheme": "Palette harmony algorithm: complementary, triadic, tetradic, analogous, monochrome or random.",
@@ -189,8 +189,8 @@ export const toolDocs = {
   },
   "generate-dataset": {
     "title": "Generate a small synthetic dataset",
-    "usage": "Use for testing CSV, JSON or JSONL import/export flows with fabricated data. For specific user/company/address fixtures, use generate-fake-data.",
-    "result": "Outputs at most eight synthetic rows; never accesses a production database.",
+    "usage": "Use for data import/export tests; use generate-fake-data for preset people or company fixtures.",
+    "result": "Returns at most eight records without accessing a database.",
     "params": {
       "count": "Number of records to generate, 1–8, default 3.",
       "format": "Output format: json, jsonl or csv.",
@@ -200,8 +200,8 @@ export const toolDocs = {
   },
   "generate-fake-data": {
     "title": "Generate fictional people and company records",
-    "usage": "Use to seed demos with made-up users, companies or addresses. For a custom schema and CSV output, use generate-dataset.",
-    "result": "Creates local synthetic fixtures, not actual identities or verified business records.",
+    "usage": "Use to seed demos with preset records; use generate-dataset for custom fields.",
+    "result": "Synthetic values are not verified identities.",
     "params": {
       "kind": "Fixture category: user, company, address or rows.",
       "count": "Requested number of synthetic records, up to eight.",
@@ -210,8 +210,8 @@ export const toolDocs = {
   },
   "generate-hash": {
     "title": "Compute a text digest",
-    "usage": "Use SHA-256 for non-secret fixture digests or to compare public text content. Do not use the legacy MD5 choice for security or either algorithm directly for password storage.",
-    "result": "Returns a digest; it is not a password-hashing or key-derivation service.",
+    "usage": "Use to fingerprint non-secret fixture data.",
+    "result": "Not suitable for password storage or key derivation.",
     "params": {
       "text": "Public or synthetic text to digest; never send secrets for hashing.",
       "algo": "Digest algorithm: sha-256 (default) or legacy md5."
@@ -219,8 +219,8 @@ export const toolDocs = {
   },
   "generate-lorem": {
     "title": "Create filler copy for layouts",
-    "usage": "Use to generate placeholder words, sentences or paragraphs for visual mocks. For real editorial text, use a writing model instead.",
-    "result": "Produces nonsensical sample content without fetching articles or documents.",
+    "usage": "Use for mock layouts needing filler words, sentences or paragraphs.",
+    "result": "Returns synthetic copy, not sourced editorial content.",
     "params": {
       "units": "Output unit: words, sentences or paragraphs.",
       "count": "Number of units, from 1 to 8; default 3.",
@@ -229,8 +229,8 @@ export const toolDocs = {
   },
   "generate-password": {
     "title": "Generate a random test password",
-    "usage": "Use to populate synthetic account fixtures; unseeded generation uses cryptographic randomness. Never use seeded passwords as actual production credentials.",
-    "result": "Returns a password as MCP text, visible to the client; keep real secrets out of public integrations.",
+    "usage": "Use to populate synthetic account fixtures.",
+    "result": "Seeded output is predictable, and all output is visible to the MCP client.",
     "params": {
       "length": "Desired password length, 8–256 characters.",
       "symbols": "Whether punctuation/symbol characters are included.",
@@ -239,8 +239,8 @@ export const toolDocs = {
   },
   "generate-phone-number": {
     "title": "Generate fictional US phone fixtures",
-    "usage": "Use for mock phone-number fields in US-based test data. To validate a supplied number, use is-phone-e164.",
-    "result": "Generates fictional strings, not callable phone numbers or subscriber lookups.",
+    "usage": "Use to populate phone fields in American demo records.",
+    "result": "Does not supply verified callable subscriber numbers.",
     "params": {
       "state": "Optional US state abbreviation: CA, NY, TX or FL.",
       "city": "Optional supported US city for choosing the mock number pattern.",
@@ -250,8 +250,8 @@ export const toolDocs = {
   },
   "generate-prompt": {
     "title": "Fill a prompt template with variables",
-    "usage": "Use to assemble a prompt string from a caller-supplied template and variable map. It does not invoke or pay for any AI model.",
-    "result": "Returns constructed prompt text; inspect template placeholders before use.",
+    "usage": "Use to assemble text, code or image prompts without invoking a model.",
+    "result": "Returns constructed text; inspect unresolved placeholders.",
     "params": {
       "type": "Prompt template category: text, code or image; default text.",
       "template": "Template string with variable placeholders, limited to 4096 characters.",
@@ -261,8 +261,8 @@ export const toolDocs = {
   },
   "generate-slug": {
     "title": "Turn a title into a URL slug",
-    "usage": "Use when creating an SEO-friendly path segment from a title. To check an existing full URL, use is-url-safe instead.",
-    "result": "Transliterates/normalizes text locally; verify preferred slugs before publishing permanent URLs.",
+    "usage": "Use when forming new path segments from headings.",
+    "result": "Inspect output before publishing permanent URLs.",
     "params": {
       "text": "Source title to normalize, such as Café startups!.",
       "maxLength": "Maximum slug length, 1–160 characters; omit for the upstream default."
@@ -270,8 +270,8 @@ export const toolDocs = {
   },
   "generate-ssn": {
     "title": "Generate fictional US SSN-style identifiers",
-    "usage": "Use only to test formatting and field validation in demos. Never use a generated value as anyone's actual Social Security number.",
-    "result": "Returns synthetic identifiers and does not query Social Security records.",
+    "usage": "Use for field validation and UI fixtures only.",
+    "result": "Structural validity does not imply actual issuance.",
     "params": {
       "count": "Number of synthetic SSN-style fixtures, 1–8.",
       "formatted": "Whether to add standard dashes to the generated identifier.",
@@ -281,8 +281,8 @@ export const toolDocs = {
   },
   "generate-token": {
     "title": "Generate random tokens or UUIDs",
-    "usage": "Use for temporary development fixtures or unseeded random UUIDs. Do not use seeded output as authentication credentials; for file digests use generate-hash.",
-    "result": "Returns a generated value visible to the MCP client; no token is registered with any service.",
+    "usage": "Use for synthetic fixtures or temporary development identifiers.",
+    "result": "Seeded output is predictable and must not be used as credentials.",
     "params": {
       "type": "Token format: uuid, hex, base64 or numeric.",
       "length": "Output length parameter, 1–256, where applicable to the selected token type.",
