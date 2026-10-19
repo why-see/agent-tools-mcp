@@ -100,8 +100,8 @@ export const toolDocs = {
   },
   "optimize-dataset": {
     "title": "Minify small structured datasets",
-    "usage": "Use to reduce formatting overhead; use is-json-safe for syntax-only checks.",
-    "result": "May normalize formatting; inspect transformed text before reuse.",
+    "usage": "Use for small datasets; use is-json-safe to check JSON syntax without changes.",
+    "result": "Returns text in the selected format; trims strings, deduplicates rows and may drop mostly empty columns.",
     "params": {
       "input": "Source dataset text (maximum 4096 characters).",
       "format": "Parsing format: auto detects, or explicitly select json, jsonl or csv."
@@ -109,24 +109,24 @@ export const toolDocs = {
   },
   "optimize-google-tag": {
     "title": "Optimize an existing Google tag snippet",
-    "usage": "Use to optimize existing tracking markup, not configure GA4.",
-    "result": "Review consent handling and tracking behavior before deployment.",
+    "usage": "Use on existing GA4 snippets, not GTM containers or consent setup.",
+    "result": "Returns replacement HTML with async loading and a config call, or original input if no G- ID exists. Review lost settings and consent.",
     "params": {
       "html": "Existing HTML snippet containing the Google Analytics tag to optimize."
     }
   },
   "minify-html": {
     "title": "Minify an HTML fragment",
-    "usage": "Use for controlled snippets rather than full document compilation.",
-    "result": "Heuristic output may require browser regression testing.",
+    "usage": "Use for small, controlled HTML snippets, not full document compilation.",
+    "result": "Returns an HTML string; preserves pre, textarea, script and style contents. Regression-test rendered output.",
     "params": {
       "html": "Original HTML source as text, up to 4096 characters."
     }
   },
   "minify-js": {
     "title": "Compact JavaScript source",
-    "usage": "Use for basic code cleanup rather than production bundling.",
-    "result": "Not AST-aware; regression-test the output.",
+    "usage": "Use for basic source cleanup, not AST-aware production minification.",
+    "result": "Returns JavaScript text, sometimes unchanged for complex syntax; regression-test its behavior.",
     "params": {
       "code": "JavaScript source code string, limited to 4096 characters."
     }
@@ -141,8 +141,8 @@ export const toolDocs = {
   },
   "minify-prompt": {
     "title": "Reduce prompt verbosity and whitespace",
-    "usage": "Use before sending text to a model when token budget matters.",
-    "result": "May alter meaning; compare results on representative prompts.",
+    "usage": "Use to compact formatting before calling a model; filler phrases are not removed.",
+    "result": "Returns trimmed text with normalized spacing; review prompts where whitespace carries meaning.",
     "params": {
       "text": "Prompt text to compact, up to 4096 characters."
     }

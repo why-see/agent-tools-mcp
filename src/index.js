@@ -98,12 +98,12 @@ function createServer(category = 'all') {
   v('is-vat-safe','Check country-specific European VAT number syntax.',{vat:short},a=>isVatSafe(a.vat));
 
   // Six original optimizer modules, with separate JS and CSS operations.
-  o('optimize-dataset','Compact JSON, JSONL or CSV sample data.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
-  o('optimize-google-tag','Rewrite a supplied Google Analytics tag snippet.',{html:text},a=>optimizeGoogleTag(a.html));
-  o('minify-html','Reduce whitespace in small HTML fragments.',{html:text},a=>minifyHTML(a.html));
-  o('minify-js','Reduce whitespace in JavaScript snippets.',{code:text},a=>minifyJS(a.code));
+  o('optimize-dataset','Clean and compact JSON, JSONL or CSV rows.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
+  o('optimize-google-tag','Rebuild GA4 gtag.js markup from a G- measurement ID.',{html:text},a=>optimizeGoogleTag(a.html));
+  o('minify-html','Remove comments and compact whitespace in HTML fragments.',{html:text},a=>minifyHTML(a.html));
+  o('minify-js','Compact small JavaScript snippets.',{code:text},a=>minifyJS(a.code));
   o('minify-css','Reduce whitespace in CSS snippets.',{code:text},a=>minifyCSS(a.code));
-  o('minify-prompt','Compress prompt whitespace and filler.',{text:text},a=>promptMinify(a.text));
+  o('minify-prompt','Normalize prompt whitespace and line breaks.',{text:text},a=>promptMinify(a.text));
   o('strip-ansi','Strip terminal ANSI escape codes from text.',{text:text},a=>stripAnsi(a.text));
 
   // 13 generators, all local deterministic/synthetic transforms or WebCrypto.

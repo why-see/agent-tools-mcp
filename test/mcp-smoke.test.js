@@ -205,3 +205,51 @@ test('Generator output guidance and supported city mappings match MCP behavior',
   assert.match(byName['generate-ssn'].description,/count=1/);
   assert.match(byName['generate-color'].description,/triadic scheme/);
 });
+
+
+test('Optimizer documentation matches actual transformations and return formats', async () => {
+  const tools=(await call('tools/list',{},'/mcp/optimizers')).result.tools;
+  assert.equal(tools.length,7);
+  const byName=Object.fromEntries(tools.map(t=>[t.name,t]));
+  assert.match(byName['optimize-dataset'].description,/deduplicates rows and may drop mostly empty columns/);
+  assert.match(byName['optimize-google-tag'].description,/original input if no G- ID exists/);
+  assert.match(byName['minify-html'].description,/Returns an HTML string/);
+  assert.match(byName['minify-js'].description,/Returns JavaScript text/);
+  assert.match(byName['minify-prompt'].description,/filler phrases are not removed/);
+
+  const run=async(name,args)=>{
+    const response=await call('tools/call',{name,arguments:args},'/mcp/optimizers');
+    assert.equal(response.result.isError,undefined,name+' unexpectedly failed');
+    return JSON.parse(response.result.content[0].text);
+  };
+
+  const data=await run('optimize-dataset',{input:JSON.stringify([
+    {id:1,name:'  Alice   Smith  ',empty:''},
+    {id:1,name:'  Alice   Smith  ',empty:''}
+  ]),format:'json'});
+  assert.equal(typeof data,'string');
+  const rows=JSON.parse(data);
+  assert.equal(rows.length,1,'duplicate row not removed');
+  assert.equal(rows[0].name,'Alice Smith');
+  assert.equal(Object.hasOwn(rows[0],'empty'),false,'empty column not removed');
+
+  const supplied='<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>';
+  const tag=await run('optimize-google-tag',{html:supplied});
+  assert.equal(typeof tag,'string');
+  assert.match(tag,/script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-ABC123"/);
+  assert.match(tag,/gtag\('config', 'G-ABC123'/);
+  const untouched='<script src="https://example.test/analytics.js"></script>';
+  assert.equal(await run('optimize-google-tag',{html:untouched}),untouched);
+
+  const html=await run('minify-html',{html:'<div>   Hello   world  </div><!-- comment -->'});
+  assert.equal(typeof html,'string');
+  assert.match(html,/<div>/);
+  assert.doesNotMatch(html,/<!-- comment -->/);
+  const js=await run('minify-js',{code:'const answer = 42;'});
+  assert.equal(typeof js,'string');
+  assert.match(js,/const answer/);
+
+  const prompt=await run('minify-prompt',{text:'  Please    summarize   this. \n\n\nAnd  this.   '});
+  assert.equal(prompt,'Please summarize this.\n\nAnd this.');
+  assert.match(prompt,/Please/,'filler unexpectedly removed');
+});
