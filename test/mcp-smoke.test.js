@@ -291,7 +291,8 @@ test('Validator output contracts match both existing MCP endpoints', async () =>
       assert.equal(typeof result,'object',name);
       assert.ok(result!==null&&!Array.isArray(result),name);
       assert.equal(typeof result.ok,'boolean',name);
-      assert.ok(Array.isArray(result.issues),name);
+      if(name==='is-password-safe')assert.ok(Array.isArray(result.reasons),name);
+      else assert.ok(Array.isArray(result.issues),name);
       for (const field of fields)assert.ok(Object.hasOwn(result,field),name+' missing '+field);
       assert.match(docs[name].description,/Returns \{ok,/,name+' missing object result explanation');
     }
