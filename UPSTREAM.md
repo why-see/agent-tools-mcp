@@ -1,12 +1,14 @@
 # Source provenance and update policy
 
-The `src/upstream` directory contains direct, unmodified copies of MIT-licensed public modules from Yvancg. The original licenses are stored alongside their copies.
+The `src/upstream` directory contains pinned copies of MIT-licensed public modules from Yvancg, with one documented local correction in the phone generator. The original licenses are stored alongside their copies.
 
 | Category | GitHub source | Revision copied | Modules | MCP tools |
 |---|---|---|---:|---:|
 | Validators | https://github.com/Yvancg/validators | `60cd6cb0d53b3bcd8449de883287003990379998` | 12 | 12 |
 | Optimizers | https://github.com/Yvancg/optimizers | `4d2a3b195b553cd871cb4d5e28da0139e28dd070` | 6 | 7 (JS and CSS split) |
 | Generators | https://github.com/Yvancg/generators | `17b34c9d60eb538e83f06cd4fe8a6fed0709544d` | 13 | 13 |
+
+**Local phone-generator correction (October 2026):** The pinned `generate-phone-number/phone.js` module adds area-code mappings for San Francisco, New York, Houston and Miami, matching the five city options already accepted by the MCP input schema. Only city-filtered number generation changes. The `Yvancg/generators` repository is left unchanged to avoid triggering its existing GitHub Actions workflows. Reconcile this patch explicitly during any future upstream refresh.
 
 **Updates are not automatic.** To update the MCP Worker, compare upstream module changes, copy changed files, run unit and protocol tests, review output, then merge the update to `main`. The Cloudflare Git integration deploys `main` automatically. This explicit copy-and-test policy prevents a compromised upstream source file from immediately becoming remote-executable MCP functionality.
 

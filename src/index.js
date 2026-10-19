@@ -108,7 +108,7 @@ function createServer(category = 'all') {
 
   // 13 generators, all local deterministic/synthetic transforms or WebCrypto.
   g('generate-avatar','Create an SVG placeholder profile icon.',{text:optional(short),pattern:optional(z.enum(['initials','blocks','circles','random'])),size:optional(z.number().int().min(32).max(256)),seed},a=>generateAvatar(a));
-  g('generate-card-number','Generate Luhn-valid synthetic card numbers.',{brand:optional(z.enum(['visa','mastercard','amex','discover'])),seed},a=>generateCard(a));
+  g('generate-card-number','Generate a synthetic payment-card fixture.',{brand:optional(z.enum(['visa','mastercard','amex','discover'])),seed},a=>generateCard(a));
   g('generate-color','Generate a palette from a base color and harmony scheme.',{base:optional(short),scheme:optional(z.enum(['complementary','triadic','tetradic','analogous','monochrome','random'])),count:optional(z.number().int().min(1).max(12)),format:optional(z.enum(['hex','rgb','hsl'])),seed},a=>generatePalette(a));
   g('generate-dataset','Generate synthetic rows as JSON, JSONL or CSV.',{count:tinyCount,format:optional(z.enum(['json','jsonl','csv'])),seed,schema:object},a=>generateDataset({...a,count:a.count??3}));
   g('generate-fake-data','Create fictional users, companies, addresses or rows.',{kind:z.enum(['user','company','address','rows']),count:tinyCount,seed},a=>{

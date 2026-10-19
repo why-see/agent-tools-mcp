@@ -167,9 +167,9 @@ export const toolDocs = {
     }
   },
   "generate-card-number": {
-    "title": "Generate a synthetic card test number",
-    "usage": "Use for payment-form fixtures and UI testing.",
-    "result": "Not an issued or usable payment credential.",
+    "title": "Generate a synthetic payment card fixture",
+    "usage": "Use for payment-form UI tests requiring a Luhn-valid card number.",
+    "result": "Returns {number, brand, expiry, cvc}; values are synthetic, not issued credentials.",
     "params": {
       "brand": "Synthetic card brand: visa, mastercard, amex or discover.",
       "seed": "Optional deterministic seed for reproducible fake card fixtures."
@@ -177,8 +177,8 @@ export const toolDocs = {
   },
   "generate-color": {
     "title": "Generate an illustrative color palette",
-    "usage": "Use to explore color combinations in design prototypes.",
-    "result": "Returns selected color notation; does not evaluate WCAG contrast.",
+    "usage": "Use for design prototypes; defaults: random base, triadic scheme, five hex colors.",
+    "result": "Returns {base, scheme, colors, textOnBase}; text color is heuristic, not a WCAG contrast check.",
     "params": {
       "base": "Optional base color such as #3366ff.",
       "scheme": "Palette harmony algorithm: complementary, triadic, tetradic, analogous, monochrome or random.",
@@ -210,8 +210,8 @@ export const toolDocs = {
   },
   "generate-hash": {
     "title": "Compute a text digest",
-    "usage": "Use to fingerprint non-secret fixture data.",
-    "result": "Not suitable for password storage or key derivation.",
+    "usage": "Use for non-secret content fingerprints; generate-token creates new IDs instead.",
+    "result": "Returns a hex digest; unsuitable for password storage or key derivation.",
     "params": {
       "text": "Public or synthetic text to digest; never send secrets for hashing.",
       "algo": "Digest algorithm: sha-256 (default) or legacy md5."
@@ -229,8 +229,8 @@ export const toolDocs = {
   },
   "generate-password": {
     "title": "Generate a random test password",
-    "usage": "Use to populate synthetic account fixtures.",
-    "result": "Seeded output is predictable, and all output is visible to the MCP client.",
+    "usage": "Use for demo login fields; use generate-token for identifiers.",
+    "result": "Seeded values are predictable and visible to MCP clients; not a secure credential vault.",
     "params": {
       "length": "Desired password length, 8–256 characters.",
       "symbols": "Whether punctuation/symbol characters are included.",
@@ -239,24 +239,24 @@ export const toolDocs = {
   },
   "generate-phone-number": {
     "title": "Generate fictional US phone fixtures",
-    "usage": "Use to populate phone fields in American demo records.",
-    "result": "Does not supply verified callable subscriber numbers.",
+    "usage": "Use for US demo phone fields; when supplied, city selects a local area-code pool and must match state.",
+    "result": "Returns an array of fictional (AAA) 555-01XX numbers; no subscriber lookup.",
     "params": {
       "state": "Optional US state abbreviation: CA, NY, TX or FL.",
-      "city": "Optional supported US city for choosing the mock number pattern.",
+      "city": "Optional city: Los Angeles, San Francisco, New York, Houston or Miami; must match state if given.",
       "count": "Number of fabricated numbers, up to eight.",
       "seed": "Optional deterministic seed for repeatable test numbers."
     }
   },
   "generate-prompt": {
     "title": "Fill a prompt template with variables",
-    "usage": "Use to assemble text, code or image prompts without invoking a model.",
-    "result": "Returns constructed text; inspect unresolved placeholders.",
+    "usage": "Use {name} placeholders with matching vars.name; missing variables become empty text.",
+    "result": "Returns a prompt string without invoking a model; code/image modes can add framing.",
     "params": {
       "type": "Prompt template category: text, code or image; default text.",
-      "template": "Template string with variable placeholders, limited to 4096 characters.",
-      "vars": "Map of placeholder names to replacement values.",
-      "seed": "Optional deterministic seed supported by the upstream template generator."
+      "template": "Template text, e.g. Hello {name}; omitted variables are replaced with empty text.",
+      "vars": "Object mapping placeholder names to values, e.g. {\"name\":\"Ada\"} for {name}.",
+      "seed": "Optional deterministic seed for the {{RAND_INT:min,max}} helper, not ordinary placeholders."
     }
   },
   "generate-slug": {
@@ -270,8 +270,8 @@ export const toolDocs = {
   },
   "generate-ssn": {
     "title": "Generate fictional US SSN-style identifiers",
-    "usage": "Use for field validation and UI fixtures only.",
-    "result": "Structural validity does not imply actual issuance.",
+    "usage": "Use for SSN test fields; use generate-fake-data for mixed-record fixtures.",
+    "result": "Returns a string for count=1, otherwise an array; structural validity does not confirm issuance.",
     "params": {
       "count": "Number of synthetic SSN-style fixtures, 1–8.",
       "formatted": "Whether to add standard dashes to the generated identifier.",
@@ -281,8 +281,8 @@ export const toolDocs = {
   },
   "generate-token": {
     "title": "Generate random tokens or UUIDs",
-    "usage": "Use for synthetic fixtures or temporary development identifiers.",
-    "result": "Seeded output is predictable and must not be used as credentials.",
+    "usage": "Use for test identifiers; use generate-password for password fixtures.",
+    "result": "Seeded output is predictable and unsuitable for authentication credentials.",
     "params": {
       "type": "Token format: uuid, hex, base64 or numeric.",
       "length": "Output length parameter, 1–256, where applicable to the selected token type.",

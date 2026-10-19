@@ -145,3 +145,63 @@ test('same four endpoints, action-oriented optimizer names, no aliases or v2 rou
     assert.equal(response.status,404,'unnecessary v2 endpoint retained: '+route);
   }
 });
+
+test('Generator output guidance and supported city mappings match MCP behavior', async () => {
+  const available=(await call('tools/list',{},'/mcp/generators')).result.tools;
+  assert.equal(available.length,13);
+  const byName=Object.fromEntries(available.map(t=>[t.name,t]));
+
+  const fixture=await call('tools/call',{name:'generate-card-number',arguments:{brand:'visa',seed:'demo'}},'/mcp/generators');
+  assert.equal(fixture.result.isError,undefined);
+  const card=JSON.parse(fixture.result.content[0].text);
+  assert.deepEqual(Object.keys(card).sort(),['brand','cvc','expiry','number']);
+  assert.match(card.number,/^4\d{15}$/);
+  assert.match(card.expiry,/^\d{2}\/\d{2}$/);
+  assert.match(card.cvc,/^\d{3}$/);
+
+  const paletteResult=await call('tools/call',{name:'generate-color',arguments:{seed:'test-palette'}},'/mcp/generators');
+  const palette=JSON.parse(paletteResult.result.content[0].text);
+  assert.deepEqual(Object.keys(palette).sort(),['base','colors','scheme','textOnBase']);
+  assert.equal(palette.scheme,'triadic');
+  assert.equal(palette.colors.length,5);
+  assert.ok(palette.colors.every(c=>/^#[0-9a-f]{6}$/.test(c)));
+
+  const promptResult=await call('tools/call',{name:'generate-prompt',arguments:{template:'Hello {name}, meet {missing}',vars:{name:'Ada'}}},'/mcp/generators');
+  assert.equal(JSON.parse(promptResult.result.content[0].text),'Hello Ada, meet');
+
+  const ssn1=await call('tools/call',{name:'generate-ssn',arguments:{count:1,seed:'fixture'}},'/mcp/generators');
+  const ssn2=await call('tools/call',{name:'generate-ssn',arguments:{count:2,seed:'fixture'}},'/mcp/generators');
+  assert.equal(typeof JSON.parse(ssn1.result.content[0].text),'string');
+  assert.equal(JSON.parse(ssn2.result.content[0].text).length,2);
+
+  const cities=[
+    {city:'Los Angeles',state:'CA',codes:[213,310,323,424,747,818]},
+    {city:'San Francisco',state:'CA',codes:[415]},
+    {city:'New York',state:'NY',codes:[212,332,646,718,917]},
+    {city:'Houston',state:'TX',codes:[281,346,713,832]},
+    {city:'Miami',state:'FL',codes:[305,786]}
+  ];
+  assert.deepEqual(new Set(byName['generate-phone-number'].inputSchema.properties.city.enum),new Set(cities.map(x=>x.city)));
+  for(const item of cities){
+    const args={city:item.city,state:item.state,count:3,seed:'fixture-city'};
+    const answer=await call('tools/call',{name:'generate-phone-number',arguments:args},'/mcp/generators');
+    assert.equal(answer.result.isError,undefined,item.city+': '+JSON.stringify(answer.result));
+    const phones=JSON.parse(answer.result.content[0].text);
+    assert.equal(phones.length,3);
+    for(const number of phones){
+      assert.match(number,/^\(\d{3}\) 555-01\d{2}$/,item.city+': '+number);
+      assert.ok(item.codes.includes(Number(number.slice(1,4))),item.city+' unexpected area code');
+    }
+    const repeat=await call('tools/call',{name:'generate-phone-number',arguments:args},'/mcp/generators');
+    assert.deepEqual(JSON.parse(repeat.result.content[0].text),phones,item.city+' non-reproducible');
+    const cityOnly=await call('tools/call',{name:'generate-phone-number',arguments:{city:item.city,seed:'fixture-city'}},'/mcp/generators');
+    assert.equal(cityOnly.result.isError,undefined,item.city+' without state fails');
+  }
+  const invalid=await call('tools/call',{name:'generate-phone-number',arguments:{city:'San Francisco',state:'NY'}},'/mcp/generators');
+  assert.equal(invalid.result.isError,true,'mismatched city/state unexpectedly accepted');
+  assert.match(invalid.result.content[0].text,/city does not match state/);
+  assert.match(byName['generate-card-number'].description,/expiry, cvc/);
+  assert.match(byName['generate-prompt'].description,/missing variables/);
+  assert.match(byName['generate-ssn'].description,/count=1/);
+  assert.match(byName['generate-color'].description,/triadic scheme/);
+});
