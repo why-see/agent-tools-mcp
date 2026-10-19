@@ -43,7 +43,7 @@ export const toolDocs = {
   },
   "is-json-safe": {
     "title": "Parse JSON under safety limits",
-    "usage": "Use to test whether text is valid JSON within depth/key constraints. For CSV/JSONL cleanup, use is-dataset-minify instead.",
+    "usage": "Use to test whether text is valid JSON within depth/key constraints. For CSV/JSONL cleanup, use optimize-dataset instead.",
     "result": "Checks JSON syntax with bounded depth and key counts; does not execute or persist input.",
     "params": {
       "json": "JSON document as a string, up to 4096 characters; depth and key counts are limited."
@@ -98,59 +98,59 @@ export const toolDocs = {
       "vat": "Country-prefixed VAT number string such as DE123456789."
     }
   },
-  "is-dataset-minify": {
+  "optimize-dataset": {
     "title": "Minify small structured datasets",
     "usage": "Use to compact small JSON, JSONL or CSV samples without discarding meaningful fields. For ordinary JSON validity checks, use is-json-safe.",
-    "result": "Transformation tool, not a boolean validator. Returns an optimized dataset representation; may normalize formatting, so inspect output before production use.",
+    "result": "Returns an optimized dataset representation; may normalize formatting, so inspect output before production use.",
     "params": {
       "input": "Source dataset text (maximum 4096 characters).",
       "format": "Parsing format: auto detects, or explicitly select json, jsonl or csv."
     }
   },
-  "is-google-tag": {
+  "optimize-google-tag": {
     "title": "Optimize an existing Google tag snippet",
     "usage": "Use when transforming an already supplied Google Analytics tag snippet. It does not configure GA4 accounts, install tracking or verify consent.",
-    "result": "Transformation tool, not a boolean validator. Returns a rewritten Google Analytics snippet; check consent behavior and analytics tracking before deployment.",
+    "result": "Returns a rewritten Google Analytics snippet; check consent behavior and analytics tracking before deployment.",
     "params": {
       "html": "Existing HTML snippet containing the Google Analytics tag to optimize."
     }
   },
-  "is-html-minify": {
+  "minify-html": {
     "title": "Minify an HTML fragment",
-    "usage": "Use to reduce whitespace in a controlled HTML fragment before delivery. For CSS or JavaScript, use is-minify-css or is-minify-js.",
-    "result": "Transformation tool, not a boolean validator. Returns minified HTML text using a heuristic, not a standards-compliant HTML parser; regression-test output.",
+    "usage": "Use to reduce whitespace in a controlled HTML fragment before delivery. For CSS or JavaScript, use minify-css or minify-js.",
+    "result": "Returns minified HTML text using a heuristic, not a standards-compliant HTML parser; regression-test output.",
     "params": {
       "html": "Original HTML source as text, up to 4096 characters."
     }
   },
-  "is-minify-js": {
+  "minify-js": {
     "title": "Compact JavaScript source",
-    "usage": "Use for small JavaScript snippets where basic whitespace cleanup suffices. For CSS use is-minify-css; for safe production bundling use a real JavaScript parser/minifier.",
-    "result": "Transformation tool, not a boolean validator. Returns compacted JavaScript source text; not AST-aware, so regression-test behavior before deployment.",
+    "usage": "Use for small JavaScript snippets where basic whitespace cleanup suffices. For CSS use minify-css; for safe production bundling use a real JavaScript parser/minifier.",
+    "result": "Returns compacted JavaScript source text; not AST-aware, so regression-test behavior before deployment.",
     "params": {
       "code": "JavaScript source code string, limited to 4096 characters."
     }
   },
-  "is-minify-css": {
+  "minify-css": {
     "title": "Compact CSS source",
-    "usage": "Use for small CSS snippets where basic whitespace cleanup suffices. For JavaScript use is-minify-js; for complex stylesheets use a CSS-aware build tool.",
-    "result": "Transformation tool, not a boolean validator. Returns compacted CSS source text; not a full CSS parser, so visually regression-test output.",
+    "usage": "Use for small CSS snippets where basic whitespace cleanup suffices. For JavaScript use minify-js; for complex stylesheets use a CSS-aware build tool.",
+    "result": "Returns compacted CSS source text; not a full CSS parser, so visually regression-test output.",
     "params": {
       "code": "CSS source code string, limited to 4096 characters."
     }
   },
-  "is-prompt-minify": {
+  "minify-prompt": {
     "title": "Reduce prompt verbosity and whitespace",
     "usage": "Use to shorten prompt text before passing it to a model when token budget matters. Do not assume the rewritten prompt preserves all nuances.",
-    "result": "Transformation tool, not a boolean validator. Returns compacted prompt text that may change phrasing or meaning; compare results on representative tasks.",
+    "result": "Returns compacted prompt text that may change phrasing or meaning; compare results on representative tasks.",
     "params": {
       "text": "Prompt text to compact, up to 4096 characters."
     }
   },
-  "is-strip-ansi": {
+  "strip-ansi": {
     "title": "Remove terminal ANSI escape codes",
-    "usage": "Use when turning colorized terminal logs into clean text for indexing or display. For structured datasets, use is-dataset-minify instead.",
-    "result": "Transformation tool, not a boolean validator. Returns text with ANSI escape formatting removed; does not parse log entries.",
+    "usage": "Use when turning colorized terminal logs into clean text for indexing or display. For structured datasets, use optimize-dataset instead.",
+    "result": "Returns text with ANSI escape formatting removed; does not parse log entries.",
     "params": {
       "text": "Terminal output string containing optional ANSI escape sequences."
     }

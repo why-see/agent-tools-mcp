@@ -53,18 +53,8 @@ function toolResult(value) {
   }
   return { content: [{ type: 'text', text: output }] };
 }
-const v2OptimizerNames = {
-  "is-dataset-minify": "optimize-dataset",
-  "is-google-tag": "optimize-google-tag",
-  "is-html-minify": "minify-html",
-  "is-minify-js": "minify-js",
-  "is-minify-css": "minify-css",
-  "is-prompt-minify": "minify-prompt",
-  "is-strip-ansi": "strip-ansi"
-};
-// Versioned tool names are opt-in; original MCP tool names remain available unchanged.
-function createServer(category = 'all', v2 = false) {
-  const mcp = new McpServer({ name: category === 'all' ? 'agent-tools-mcp' : 'agent-tools-' + category + '-mcp', version: v2 ? '2.0.0' : '1.1.0' });
+function createServer(category = 'all') {
+  const mcp = new McpServer({ name: category === 'all' ? 'agent-tools-mcp' : 'agent-tools-' + category + '-mcp', version: '1.1.0' });
   function register(name, group, description, inputSchema, execute) {
     if (category !== 'all' && category !== group) return;
     const doc = toolDocs[name];
@@ -77,7 +67,7 @@ function createServer(category = 'all', v2 = false) {
         return [key, schema.describe(doc.params[key])];
       })
     );
-    mcp.registerTool(v2 && group === 'optimizers' ? v2OptimizerNames[name] : name, {
+    mcp.registerTool(name, {
       title: doc.title,
       description: description + ' ' + doc.usage + ' ' + doc.result,
       inputSchema: documentedInputs,
@@ -108,13 +98,13 @@ function createServer(category = 'all', v2 = false) {
   v('is-vat-safe','EU VAT country-specific format only.',{vat:short},a=>isVatSafe(a.vat));
 
   // Six original optimizer modules, with separate JS and CSS operations.
-  o('is-dataset-minify','Clean or minify JSON/JSONL/CSV data, max 4096 input characters.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
-  o('is-google-tag','Rewrite existing Google Analytics tag snippet; review output before production.',{html:text},a=>optimizeGoogleTag(a.html));
-  o('is-html-minify','Conservative HTML minification, review results before production.',{html:text},a=>minifyHTML(a.html));
-  o('is-minify-js','Conservative JS minification. Not a parser. Regression-test minified code.',{code:text},a=>minifyJS(a.code));
-  o('is-minify-css','Conservative CSS minification, review results before production.',{code:text},a=>minifyCSS(a.code));
-  o('is-prompt-minify','Compress prompt whitespace and filler; semantic equivalence not guaranteed.',{text:text},a=>promptMinify(a.text));
-  o('is-strip-ansi','Strip ANSI escape sequences.',{text:text},a=>stripAnsi(a.text));
+  o('optimize-dataset','Clean or minify JSON/JSONL/CSV data, max 4096 input characters.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
+  o('optimize-google-tag','Rewrite existing Google Analytics tag snippet; review output before production.',{html:text},a=>optimizeGoogleTag(a.html));
+  o('minify-html','Conservative HTML minification, review results before production.',{html:text},a=>minifyHTML(a.html));
+  o('minify-js','Conservative JS minification. Not a parser. Regression-test minified code.',{code:text},a=>minifyJS(a.code));
+  o('minify-css','Conservative CSS minification, review results before production.',{code:text},a=>minifyCSS(a.code));
+  o('minify-prompt','Compress prompt whitespace and filler; semantic equivalence not guaranteed.',{text:text},a=>promptMinify(a.text));
+  o('strip-ansi','Strip ANSI escape sequences.',{text:text},a=>stripAnsi(a.text));
 
   // 13 generators, all local deterministic/synthetic transforms or WebCrypto.
   g('generate-avatar','Generate SVG placeholder avatar, max 256px.',{text:optional(short),pattern:optional(z.enum(['initials','blocks','circles','random'])),size:optional(z.number().int().min(32).max(256)),seed},a=>generateAvatar(a));
@@ -138,18 +128,16 @@ function createServer(category = 'all', v2 = false) {
   return mcp;
 }
 // Category-scoped public endpoints reuse the same audited tool implementations.
-// Keep the original /mcp route unchanged for existing clients and registry users.
+// Preserve the four published MCP endpoint URLs and their tool counts.
 const endpointGroups = [
   ['/mcp', 'all'],
   ['/mcp/validators', 'validators'],
   ['/mcp/optimizers', 'optimizers'],
   ['/mcp/generators', 'generators'],
-  ['/mcp/v2', 'all', true],
-  ['/mcp/optimizers/v2', 'optimizers', true],
 ];
 const handlers = Object.fromEntries(
-  endpointGroups.map(([route, group, v2 = false]) =>
-    [route, createMcpHandler(() => createServer(group, v2), { route, legacy: 'stateless' })])
+  endpointGroups.map(([route, group]) =>
+    [route, createMcpHandler(() => createServer(group), { route, legacy: 'stateless' })])
 );
 function matchesBearer(actual, token) {
   const target='Bearer '+token;

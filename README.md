@@ -50,11 +50,11 @@ The repo is public and MIT licensed, preserving the vendored source licenses. Cl
 
 **Validators (12):** is-card-safe, is-email-safe, is-iban-safe, is-iso-date-safe, is-ip-safe, is-json-safe, is-password-safe, is-phone-e164, is-uuid-safe, is-url-safe, is-us-tin-safe, is-vat-safe.
 
-**Optimizers (7 tools / 6 modules):** is-dataset-minify, is-google-tag, is-html-minify, is-minify-js, is-minify-css, is-prompt-minify, is-strip-ansi.
+**Optimizers (7 tools / 6 modules):** optimize-dataset, optimize-google-tag, minify-html, minify-js, minify-css, minify-prompt, strip-ansi.
 
 **Generators (13):** generate-avatar, generate-card-number, generate-color, generate-dataset, generate-fake-data, generate-hash, generate-lorem, generate-password, generate-phone-number, generate-prompt, generate-slug, generate-ssn, generate-token.
 
-Names and implementations are derived from the upstream module files. Exact upstream versions and update policy are documented in [UPSTREAM.md](./UPSTREAM.md). The upstream catalogs are not complete or consistent enough to serve as the runtime source of truth; we use explicit audited function adapters.
+Optimizer MCP tool names are action-oriented, while vendored upstream file paths retain their original names. Implementations are derived from the upstream module files. Exact upstream versions and update policy are documented in [UPSTREAM.md](./UPSTREAM.md). The upstream catalogs are not complete or consistent enough to serve as the runtime source of truth; we use explicit audited function adapters.
 
 ## Tests and deployment
 
@@ -72,22 +72,4 @@ This public endpoint runs pure software utilities and **cannot** access your Git
 
 Current catalog size is 32 MCP tool names backed by 31 original upstream modules. An update to an upstream source repo does not automatically rebuild this MCP Worker; see the explicit update policy.
 
-
-## Opt-in clearer optimizer names (v2)
-
-The four original endpoints remain unchanged, including the published Glama connectors and all established MCP tool names. For new clients, the versioned endpoints provide action-oriented names for the seven optimizer operations without duplicating them:
-
-- Combined catalog (32 tools): `https://agent-tools-mcp.yvan11.workers.dev/mcp/v2`
-- Optimizers only (7 tools): `https://agent-tools-mcp.yvan11.workers.dev/mcp/optimizers/v2`
-
-| Existing v1 name | Opt-in v2 name |
-| --- | --- |
-| `is-dataset-minify` | `optimize-dataset` |
-| `is-google-tag` | `optimize-google-tag` |
-| `is-html-minify` | `minify-html` |
-| `is-minify-js` | `minify-js` |
-| `is-minify-css` | `minify-css` |
-| `is-prompt-minify` | `minify-prompt` |
-| `is-strip-ansi` | `strip-ansi` |
-
-The other 25 tool names are unchanged. Both generations use the same implementations and schemas; the original `/mcp`, `/mcp/validators`, `/mcp/optimizers`, and `/mcp/generators` endpoints continue working. **No aliases are added to a single tool list.** Existing clients need no changes; new clients can opt into the v2 endpoints. Glama listings are not automatically migrated.
+The original four endpoint URLs are unchanged. The seven optimizer operation names were standardized to action-oriented forms in October 2026; clients that explicitly call a previous `is-*` optimizer name must refresh their tool catalog. The underlying code, inputs, outputs and tool counts are unchanged.

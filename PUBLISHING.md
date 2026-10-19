@@ -89,6 +89,6 @@ An existing registry version may not be overwritten freely. For a new MCP releas
 - Never submit real passwords, payment-card numbers, personal IDs, or secrets to this public endpoint.
 - Save the actual published registry and Glama listing URLs after successful submissions. Do not claim publication until a listing is verifiable.
 
-## Nonbreaking v2 tool naming
+## Optimizer naming update (October 2026)
 
-The existing published four endpoints remain at v1 with their original names and counts. For clients adopting action-oriented optimizer names, `/mcp/v2` (32 tools) and `/mcp/optimizers/v2` (7 tools) use the same implementations with seven names changed. See [README.md](README.md) for the exact mapping. Do not replace existing Glama or registry URLs with the v2 endpoints without separately reviewing listing behavior and client migration. No new registry submission is required for the unchanged v1 listing.
+The existing four published URLs remain unchanged and the combined/optimizer inventories remain 32/7. Seven optimizer tool names were standardized to action prefixes (`minify-`, `optimize-`, `strip-`) on the same endpoints. MCP clients that cache tool names may need to refresh their tool lists. Refresh Glama's existing connector listings rather than submitting new connector URLs. No extra endpoints or duplicate aliases are exposed.
