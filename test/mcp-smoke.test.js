@@ -127,3 +127,56 @@ test('Specialized MCP endpoints expose exactly their category without altering t
   assert.equal(original.result.tools.length,32,'combined endpoint backwards-compatible');
   for(const tool of original.result.tools)assert.ok(seen.has(tool.name),'missing category assignment for '+tool.name);
 });
+
+// New names are exposed only on opt-in v2 endpoints, without duplicates or v1 breakage.
+test('v2 optimizer names are action-oriented, v1 inventories and behavior remain stable', async () => {
+  const mapping = {
+    "is-dataset-minify": "optimize-dataset",
+    "is-google-tag": "optimize-google-tag",
+    "is-html-minify": "minify-html",
+    "is-minify-js": "minify-js",
+    "is-minify-css": "minify-css",
+    "is-prompt-minify": "minify-prompt",
+    "is-strip-ansi": "strip-ansi"
+};
+  for (const [v1route, v2route, expected] of [['/mcp','/mcp/v2',32],['/mcp/optimizers','/mcp/optimizers/v2',7]]) {
+    const oldList = (await call('tools/list',{},v1route)).result.tools;
+    const newList = (await call('tools/list',{},v2route)).result.tools;
+    assert.equal(oldList.length,expected);
+    assert.equal(newList.length,expected);
+    const oldNames = new Set(oldList.map(t=>t.name));
+    const newNames = new Set(newList.map(t=>t.name));
+    for (const [oldName,newName] of Object.entries(mapping)) {
+      assert.ok(oldNames.has(oldName), 'v1 missing '+oldName);
+      assert.ok(!newNames.has(oldName), 'v2 still exposes '+oldName);
+      assert.ok(newNames.has(newName), 'v2 missing '+newName);
+      assert.ok(!oldNames.has(newName), 'v1 exposes new name '+newName);
+      const oldTool = oldList.find(t=>t.name===oldName);
+      const newTool = newList.find(t=>t.name===newName);
+      assert.deepEqual(newTool.inputSchema,oldTool.inputSchema,newName+' changed parameters');
+      assert.equal(newTool.description,oldTool.description,newName+' changed description');
+    }
+    assert.equal(newNames.size,expected,'duplicate v2 names');
+    for (const oldTool of oldList) {
+      const renamed = mapping[oldTool.name] || oldTool.name;
+      assert.ok(newNames.has(renamed),'v2 missing '+renamed);
+    }
+  }
+  const cases = [
+    ['is-dataset-minify','optimize-dataset',{input:'[{"id":1}]',format:'json'}],
+    ['is-google-tag','optimize-google-tag',{html:'<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>'}],
+    ['is-html-minify','minify-html',{html:'<div> Hello </div>'}],
+    ['is-minify-js','minify-js',{code:'const a = 1;'}],
+    ['is-minify-css','minify-css',{code:'body { color: red; }'}],
+    ['is-prompt-minify','minify-prompt',{text:'Please   summarize this report.'}],
+    ['is-strip-ansi','strip-ansi',{text:'\\u001b[31mred\\u001b[0m'}],
+  ];
+  for (const [oldName,newName,args] of cases) {
+    const oldResponse=(await call('tools/call',{name:oldName,arguments:args},'/mcp/optimizers')).result;
+    const newResponse=(await call('tools/call',{name:newName,arguments:args},'/mcp/optimizers/v2')).result;
+    assert.equal(Boolean(newResponse.isError),Boolean(oldResponse.isError),oldName+' error mismatch');
+    assert.deepEqual(newResponse.content,oldResponse.content,newName+' changed output');
+  }
+  const v2Init = await call('initialize', {protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'v2-test',version:'1.0'}}, '/mcp/optimizers/v2');
+  assert.equal(v2Init.result.serverInfo.version,'2.0.0');
+});

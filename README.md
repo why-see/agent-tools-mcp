@@ -72,3 +72,22 @@ This public endpoint runs pure software utilities and **cannot** access your Git
 
 Current catalog size is 32 MCP tool names backed by 31 original upstream modules. An update to an upstream source repo does not automatically rebuild this MCP Worker; see the explicit update policy.
 
+
+## Opt-in clearer optimizer names (v2)
+
+The four original endpoints remain unchanged, including the published Glama connectors and all established MCP tool names. For new clients, the versioned endpoints provide action-oriented names for the seven optimizer operations without duplicating them:
+
+- Combined catalog (32 tools): `https://agent-tools-mcp.yvan11.workers.dev/mcp/v2`
+- Optimizers only (7 tools): `https://agent-tools-mcp.yvan11.workers.dev/mcp/optimizers/v2`
+
+| Existing v1 name | Opt-in v2 name |
+| --- | --- |
+| `is-dataset-minify` | `optimize-dataset` |
+| `is-google-tag` | `optimize-google-tag` |
+| `is-html-minify` | `minify-html` |
+| `is-minify-js` | `minify-js` |
+| `is-minify-css` | `minify-css` |
+| `is-prompt-minify` | `minify-prompt` |
+| `is-strip-ansi` | `strip-ansi` |
+
+The other 25 tool names are unchanged. Both generations use the same implementations and schemas; the original `/mcp`, `/mcp/validators`, `/mcp/optimizers`, and `/mcp/generators` endpoints continue working. **No aliases are added to a single tool list.** Existing clients need no changes; new clients can opt into the v2 endpoints. Glama listings are not automatically migrated.

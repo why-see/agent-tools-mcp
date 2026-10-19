@@ -53,8 +53,18 @@ function toolResult(value) {
   }
   return { content: [{ type: 'text', text: output }] };
 }
-function createServer(category = 'all') {
-  const mcp = new McpServer({ name: category === 'all' ? 'agent-tools-mcp' : 'agent-tools-' + category + '-mcp', version: '1.1.0' });
+const v2OptimizerNames = {
+  "is-dataset-minify": "optimize-dataset",
+  "is-google-tag": "optimize-google-tag",
+  "is-html-minify": "minify-html",
+  "is-minify-js": "minify-js",
+  "is-minify-css": "minify-css",
+  "is-prompt-minify": "minify-prompt",
+  "is-strip-ansi": "strip-ansi"
+};
+// Versioned tool names are opt-in; original MCP tool names remain available unchanged.
+function createServer(category = 'all', v2 = false) {
+  const mcp = new McpServer({ name: category === 'all' ? 'agent-tools-mcp' : 'agent-tools-' + category + '-mcp', version: v2 ? '2.0.0' : '1.1.0' });
   function register(name, group, description, inputSchema, execute) {
     if (category !== 'all' && category !== group) return;
     const doc = toolDocs[name];
@@ -67,7 +77,7 @@ function createServer(category = 'all') {
         return [key, schema.describe(doc.params[key])];
       })
     );
-    mcp.registerTool(name, {
+    mcp.registerTool(v2 && group === 'optimizers' ? v2OptimizerNames[name] : name, {
       title: doc.title,
       description: description + ' ' + doc.usage + ' ' + doc.result,
       inputSchema: documentedInputs,
@@ -134,10 +144,12 @@ const endpointGroups = [
   ['/mcp/validators', 'validators'],
   ['/mcp/optimizers', 'optimizers'],
   ['/mcp/generators', 'generators'],
+  ['/mcp/v2', 'all', true],
+  ['/mcp/optimizers/v2', 'optimizers', true],
 ];
 const handlers = Object.fromEntries(
-  endpointGroups.map(([route, group]) =>
-    [route, createMcpHandler(() => createServer(group), { route, legacy: 'stateless' })])
+  endpointGroups.map(([route, group, v2 = false]) =>
+    [route, createMcpHandler(() => createServer(group, v2), { route, legacy: 'stateless' })])
 );
 function matchesBearer(actual, token) {
   const target='Bearer '+token;
