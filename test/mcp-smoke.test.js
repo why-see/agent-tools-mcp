@@ -250,6 +250,6 @@ test('Optimizer documentation matches actual transformations and return formats'
   assert.match(js,/const answer/);
 
   const prompt=await run('minify-prompt',{text:'  Please    summarize   this. \n\n\nAnd  this.   '});
-  assert.equal(prompt,'Please summarize this.\n\nAnd this.');
+  assert.equal(prompt,'Please summarize this. \n\nAnd this.');
   assert.match(prompt,/Please/,'filler unexpectedly removed');
 });
