@@ -3,48 +3,48 @@
 export const toolDocs = {
   "is-card-safe": {
     "title": "Check card number structure",
-    "usage": "Use with synthetic card fixtures when testing payment fields.",
-    "result": "Returns structural validity, not authorization or fraud detection.",
+    "usage": "Use with synthetic card numbers in payment-form tests.",
+    "result": "Returns {ok, normalized?, brand?, last4?, issues}; not a payment authorization or fraud check.",
     "params": {
       "number": "Synthetic payment-card number string to examine; do not provide real card details."
     }
   },
   "is-email-safe": {
     "title": "Validate email address syntax",
-    "usage": "Use to reject malformed email strings in forms and test fixtures.",
-    "result": "Does not establish mailbox existence or deliverability.",
+    "usage": "Use to reject malformed addresses in forms and test fixtures.",
+    "result": "Returns true or false; does not check mailbox existence or deliverability.",
     "params": {
       "email": "Email address string to check, such as founder@example.com; ASCII format only."
     }
   },
   "is-iban-safe": {
     "title": "Check IBAN syntax and checksum",
-    "usage": "Use to screen fabricated or public IBANs in test data.",
-    "result": "Does not verify account ownership or transferability.",
+    "usage": "Use to screen public or synthetic IBANs in test data.",
+    "result": "Returns {ok, normalized?, issues}; does not verify account ownership or transferability.",
     "params": {
       "iban": "IBAN string, optionally with spaces; do not submit real private bank account details."
     }
   },
   "is-iso-date-safe": {
     "title": "Validate an ISO calendar date",
-    "usage": "Use to validate date-only fields, including leap days.",
-    "result": "Does not parse timestamps or timezone offsets.",
+    "usage": "Use for date-only form fields, not timestamps or timezone offsets.",
+    "result": "Returns true for a valid date, otherwise false.",
     "params": {
       "date": "Candidate date formatted YYYY-MM-DD, such as 2024-02-29."
     }
   },
   "is-ip-safe": {
     "title": "Validate IPv4 or IPv6 address syntax",
-    "usage": "Use to screen candidate IP strings before processing.",
-    "result": "Does not test reachability or geolocation.",
+    "usage": "Use to screen candidate IP strings, not test reachability or geolocation.",
+    "result": "Returns {ok, version, issues}; version is 4, 6 or null.",
     "params": {
       "ip": "IPv4 or IPv6 literal address such as 192.0.2.1 or 2001:db8::1."
     }
   },
   "is-json-safe": {
     "title": "Parse JSON under safety limits",
-    "usage": "Use to screen JSON documents before processing; use optimize-dataset for JSONL or CSV cleanup.",
-    "result": "Checks syntax without executing the input.",
+    "usage": "Use to screen JSON without execution; use optimize-dataset for JSONL or CSV cleanup.",
+    "result": "Returns {ok, issues, bytes, depth, keys, value?}; parsed value is included only when valid.",
     "params": {
       "json": "JSON document as a string, up to 4096 characters; depth and key counts are limited."
     }
@@ -52,23 +52,23 @@ export const toolDocs = {
   "is-password-safe": {
     "title": "Assess password strength heuristically",
     "usage": "Use only with dummy passwords when testing password policies.",
-    "result": "Does not check breach databases or guarantee security.",
+    "result": "Returns {ok, score, entropyBits, length, sets, reasons, suggestions}; no breach-database lookup.",
     "params": {
       "password": "Fictitious test password; never supply an actual password or secret."
     }
   },
   "is-phone-e164": {
-    "title": "Normalize an international phone number",
-    "usage": "Use to standardize internationally formatted test phone numbers.",
-    "result": "Does not verify subscriber ownership or send SMS.",
+    "title": "Validate E.164 phone number syntax",
+    "usage": "Use to test international number formats, including spaces or 00 prefixes.",
+    "result": "Returns true or false, not the normalized number; no subscriber or reachability check.",
     "params": {
       "phone": "Candidate internationally formatted telephone number, for example +66812345678."
     }
   },
   "is-uuid-safe": {
     "title": "Validate canonical UUID syntax",
-    "usage": "Use to validate identifiers; use generate-token to create UUIDs.",
-    "result": "Does not check uniqueness or resource existence.",
+    "usage": "Use to validate UUIDs; use generate-token to create them.",
+    "result": "Returns true or false; does not check uniqueness or resource existence.",
     "params": {
       "uuid": "UUID string in canonical hyphenated format.",
       "version": "Optional UUID version number from 1 to 8; omit to accept any supported version."
@@ -76,16 +76,16 @@ export const toolDocs = {
   },
   "is-url-safe": {
     "title": "Validate HTTP or HTTPS URL syntax",
-    "usage": "Use to screen links before storing or displaying them.",
-    "result": "Does not visit the site or assess its safety.",
+    "usage": "Use to screen links before display or storage.",
+    "result": "Returns true or false; does not visit or assess the site's safety.",
     "params": {
       "url": "Absolute HTTP(S) URL string; other schemes such as javascript: are not supported."
     }
   },
   "is-us-tin-safe": {
     "title": "Check US tax ID format",
-    "usage": "Use to test taxpayer-ID input fields.",
-    "result": "Does not verify IRS issuance or anyone's identity.",
+    "usage": "Use with tax-ID input fixtures, never real personal identifiers.",
+    "result": "Returns {ok, normalized?, type, issues}; does not verify IRS issuance or identity.",
     "params": {
       "tin": "Synthetic US taxpayer identifier string; do not submit actual personal identifiers."
     }
@@ -93,7 +93,7 @@ export const toolDocs = {
   "is-vat-safe": {
     "title": "Validate European VAT number format",
     "usage": "Use to screen VAT fixtures before form submission.",
-    "result": "Does not query VIES or confirm active registration.",
+    "result": "Returns {ok, country?, normalized?, issues}; no VIES lookup or active-registration check.",
     "params": {
       "vat": "Country-prefixed VAT number string such as DE123456789."
     }

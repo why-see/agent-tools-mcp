@@ -253,3 +253,54 @@ test('Optimizer documentation matches actual transformations and return formats'
   assert.equal(prompt,'Please summarize this. \n\nAnd this.');
   assert.match(prompt,/Please/,'filler unexpectedly removed');
 });
+
+
+test('Validator output contracts match both existing MCP endpoints', async () => {
+  const booleans = [
+    ['is-email-safe',{email:'founder@example.com'},{email:'invalid-email'}],
+    ['is-iso-date-safe',{date:'2024-02-29'},{date:'2023-02-29'}],
+    ['is-phone-e164',{phone:'00 66 81 234 5678'},{phone:'invalid-number'}],
+    ['is-uuid-safe',{uuid:'550e8400-e29b-41d4-a716-446655440000',version:4},{uuid:'550e8400-e29b-41d4-a716-446655440000',version:1}],
+    ['is-url-safe',{url:'https://example.com'},{url:'ftp://example.com'}]
+  ];
+  const structures = [
+    ['is-card-safe',{number:'4111111111111111'},['ok','issues','brand','last4']],
+    ['is-iban-safe',{iban:'GB82 WEST 1234 5698 7654 32'},['ok','issues']],
+    ['is-ip-safe',{ip:'192.0.2.1'},['ok','version','issues']],
+    ['is-json-safe',{json:'{"hello":true}'},['ok','issues','bytes','depth','keys','value']],
+    ['is-password-safe',{password:'Dummy_123_Test!'},['ok','score','entropyBits','length','sets','reasons','suggestions']],
+    ['is-us-tin-safe',{tin:'12-3456789'},['ok','type','issues']],
+    ['is-vat-safe',{vat:'DE123456789'},['ok','country','issues']]
+  ];
+  const invoke = async (route,name,args) => {
+    const response=await call('tools/call',{name,arguments:args},route);
+    assert.equal(response.result.isError,undefined,name+' unexpected error: '+JSON.stringify(response.result));
+    return JSON.parse(response.result.content[0].text);
+  };
+  for (const route of ['/mcp/validators','/mcp']) {
+    const tools=(await call('tools/list',{},route)).result.tools;
+    assert.equal(tools.length,route==='/mcp'?32:12);
+    const docs=Object.fromEntries(tools.map(t=>[t.name,t]));
+    for (const [name,accepted,rejected] of booleans) {
+      assert.equal(await invoke(route,name,accepted),true,name+' valid case');
+      assert.equal(await invoke(route,name,rejected),false,name+' invalid case');
+      assert.match(docs[name].description,/Returns true/,name+' missing result explanation');
+    }
+    for (const [name,args,fields] of structures) {
+      const result=await invoke(route,name,args);
+      assert.equal(typeof result,'object',name);
+      assert.ok(result!==null&&!Array.isArray(result),name);
+      assert.equal(typeof result.ok,'boolean',name);
+      assert.ok(Array.isArray(result.issues),name);
+      for (const field of fields)assert.ok(Object.hasOwn(result,field),name+' missing '+field);
+      assert.match(docs[name].description,/Returns \{ok,/,name+' missing object result explanation');
+    }
+    assert.equal(docs['is-phone-e164'].title,'Validate E.164 phone number syntax');
+    assert.match(docs['is-phone-e164'].description,/not the normalized number/);
+    assert.equal(await invoke(route,'is-phone-e164',{phone:'(668) 123-45678'}),true);
+    const unknown=await invoke(route,'is-ip-safe',{ip:'unrecognized'});
+    assert.equal(unknown.ok,false);
+    assert.equal(unknown.version,null);
+    assert.ok(Array.isArray(unknown.issues));
+  }
+});

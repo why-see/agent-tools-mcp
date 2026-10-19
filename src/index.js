@@ -84,18 +84,18 @@ function createServer(category = 'all') {
   const g = (name, description, schema, fn) => register(name, 'generators', description, schema, fn);
 
   // 12 validators: no third-party verification or external calls.
-  v('is-card-safe','Check card number network, length and Luhn checksum.',{number:short},a=>validateCard(a.number));
-  v('is-email-safe','Check ASCII email address syntax.',{email:short},a=>isEmailSafe(a.email));
-  v('is-iban-safe','Check IBAN country length and checksum using a bundled registry.',{iban:short},a=>isIbanSafe(a.iban));
-  v('is-iso-date-safe','Check Gregorian calendar dates in YYYY-MM-DD format.',{date:short},a=>isIsoDateSafe(a.date));
+  v('is-card-safe','Check payment-card brand, length and Luhn checksum.',{number:short},a=>validateCard(a.number));
+  v('is-email-safe','Check conservative ASCII email address syntax.',{email:short},a=>isEmailSafe(a.email));
+  v('is-iban-safe','Check IBAN country rules, length and checksum against a bundled registry.',{iban:short},a=>isIbanSafe(a.iban));
+  v('is-iso-date-safe','Check Gregorian YYYY-MM-DD calendar dates, including leap days.',{date:short},a=>isIsoDateSafe(a.date));
   v('is-ip-safe','Check IPv4 or IPv6 literal-address syntax.',{ip:short},a=>isIpSafe(a.ip));
-  v('is-json-safe','Parse JSON within bounded depth and key limits.',{json:text},a=>isJsonSafe(a.json,{maxBytes:8192,maxDepth:32,maxKeys:500}));
-  v('is-password-safe','Assess password strength with local heuristics.',{password:short},a=>validatePassword(a.password));
-  v('is-phone-e164','Check and normalize phone numbers to E.164 style.',{phone:short},a=>isPhoneE164(a.phone));
-  v('is-uuid-safe','Check canonical UUID syntax and optional version.',{uuid:short,version:optional(z.number().int().min(1).max(8))},a=>isUuidSafe(a.uuid,{version:a.version}));
-  v('is-url-safe','Check absolute HTTP(S) URL syntax.',{url:text},a=>isUrlSafe(a.url));
-  v('is-us-tin-safe','Check formatting of synthetic US EIN, SSN or ITIN values.',{tin:short},a=>validateTIN(a.tin));
-  v('is-vat-safe','Check country-specific European VAT number syntax.',{vat:short},a=>isVatSafe(a.vat));
+  v('is-json-safe','Parse JSON with bounded depth, key counts and input size.',{json:text},a=>isJsonSafe(a.json,{maxBytes:8192,maxDepth:32,maxKeys:500}));
+  v('is-password-safe','Evaluate password strength using local heuristics.',{password:short},a=>validatePassword(a.password));
+  v('is-phone-e164','Check phone number syntax against E.164 after local normalization.',{phone:short},a=>isPhoneE164(a.phone));
+  v('is-uuid-safe','Check canonical UUID syntax and optional RFC variant/version.',{uuid:short,version:optional(z.number().int().min(1).max(8))},a=>isUuidSafe(a.uuid,{version:a.version}));
+  v('is-url-safe','Check absolute HTTP or HTTPS URL syntax.',{url:text},a=>isUrlSafe(a.url));
+  v('is-us-tin-safe','Check synthetic US EIN, SSN or ITIN number formats.',{tin:short},a=>validateTIN(a.tin));
+  v('is-vat-safe','Check country-specific VAT number patterns.',{vat:short},a=>isVatSafe(a.vat));
 
   // Six original optimizer modules, with separate JS and CSS operations.
   o('optimize-dataset','Clean and compact JSON, JSONL or CSV rows.',{input:text,format:optional(z.enum(['auto','json','jsonl','csv']))},a=>optimizeDataset(a.input,{format:a.format||'auto'}));
